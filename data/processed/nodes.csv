@@ -1,0 +1,53 @@
+name,lat,lon,type,subtype
+Amazon FC Bhiwandi,19.2967,73.0593,warehouse,fc
+Flipkart FC Bhiwandi,19.31,73.065,warehouse,fc
+Amazon FC Manesar,28.35,76.93,warehouse,fc
+Delhivery Hub Gurgaon,28.4595,77.0266,warehouse,3pl
+Amazon FC Noida,28.5355,77.391,warehouse,fc
+Flipkart FC Bangalore,12.8389,77.6627,warehouse,fc
+Amazon FC Bangalore,12.912,77.65,warehouse,fc
+Amazon FC Hyderabad,17.4126,78.4072,warehouse,fc
+Amazon FC Chennai,12.9824,80.2181,warehouse,fc
+Amazon FC Kolkata,22.6328,88.3793,warehouse,fc
+XpressBees Hub Pune,18.6526,73.8524,warehouse,3pl
+Delhivery Hub Jaipur,26.8935,75.7568,warehouse,3pl
+Ecom Express Lucknow,26.8701,80.9462,warehouse,3pl
+Blue Dart Hub Ahmedabad,23.0653,72.5897,warehouse,3pl
+Amazon FC Surat,21.1702,72.8311,warehouse,fc
+Mahindra Logistics Nagpur,21.0762,79.0415,warehouse,3pl
+Delhivery Hub Coimbatore,11.0168,76.9558,warehouse,3pl
+Amazon FC Kochi,10.0227,76.3267,warehouse,fc
+Amazon FC Visakhapatnam,17.7231,83.3012,warehouse,fc
+Ludhiana Industrial Hub,30.901,75.8573,warehouse,industrial
+Panipat Textile Hub,29.3909,76.9635,warehouse,industrial
+Tiruppur Textile Hub,11.1085,77.3411,warehouse,industrial
+Rajkot Industrial Hub,22.3039,70.8022,warehouse,industrial
+Blue Dart Hub Indore,22.7196,75.8577,warehouse,3pl
+Delhivery Hub Patna,25.5941,85.1376,warehouse,3pl
+WCI Bhubaneswar,20.2961,85.8245,warehouse,3pl
+Amazon FC Chandigarh,30.7333,76.7794,warehouse,fc
+Flipkart Hub Vadodara,22.3072,73.1812,warehouse,fc
+JNPT Port,18.95,72.9333,port,seaport
+Mumbai Port,18.922,72.8347,port,seaport
+Kandla Port,22.95,70.2,port,seaport
+Mundra Port,22.8395,69.706,port,seaport
+Chennai Port,13.09,80.29,port,seaport
+Ennore Port,13.2167,80.3167,port,seaport
+Visakhapatnam Port,17.6932,83.2771,port,seaport
+Paradip Port,20.3167,86.6167,port,seaport
+Kolkata Port,22.58,88.32,port,seaport
+Haldia Port,22.0621,88.0684,port,seaport
+Kochi Port,9.9667,76.2667,port,seaport
+New Mangalore Port,12.9201,74.81,port,seaport
+Mormugao Port,15.4,73.8,port,seaport
+Tuticorin Port,8.7642,78.1348,port,seaport
+Mumbai Airport BOM,19.0896,72.8656,airport,cargo
+Delhi Airport DEL,28.5665,77.1031,airport,cargo
+Bangalore Airport BLR,13.1986,77.7066,airport,cargo
+Chennai Airport MAA,12.9941,80.1709,airport,cargo
+Kolkata Airport CCU,22.652,88.4463,airport,cargo
+Hyderabad Airport HYD,17.2403,78.4294,airport,cargo
+Ahmedabad Airport AMD,23.0772,72.6347,airport,cargo
+Kochi Airport COK,10.152,76.4019,airport,cargo
+Pune Airport PNQ,18.5822,73.9197,airport,cargo
+Nagpur Airport NAG,21.0922,79.0472,airport,cargo

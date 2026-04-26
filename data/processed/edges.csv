@@ -1,0 +1,549 @@
+origin,destination,distance_km,hist_avg_delay_hrs,transport_mode,mode_label
+Amazon FC Bhiwandi,Flipkart FC Bhiwandi,1.6,0.03,0,road
+Amazon FC Bhiwandi,Amazon FC Hyderabad,602.0,11.6,0,road
+Amazon FC Bhiwandi,XpressBees Hub Pune,109.9,2.12,0,road
+Amazon FC Bhiwandi,Blue Dart Hub Ahmedabad,421.9,8.13,0,road
+Amazon FC Bhiwandi,Amazon FC Surat,209.7,4.04,0,road
+Amazon FC Bhiwandi,Mahindra Logistics Nagpur,654.9,12.62,0,road
+Amazon FC Bhiwandi,Rajkot Industrial Hub,408.5,7.87,0,road
+Amazon FC Bhiwandi,Blue Dart Hub Indore,478.8,9.23,0,road
+Amazon FC Bhiwandi,Flipkart Hub Vadodara,335.0,6.46,0,road
+Amazon FC Bhiwandi,JNPT Port,40.8,0.79,0,road
+Amazon FC Bhiwandi,Mumbai Port,47.9,0.92,0,road
+Amazon FC Bhiwandi,Mumbai Airport BOM,30.7,0.59,0,road
+Flipkart FC Bhiwandi,Amazon FC Bhiwandi,1.6,0.03,0,road
+Flipkart FC Bhiwandi,Amazon FC Hyderabad,601.9,11.6,0,road
+Flipkart FC Bhiwandi,XpressBees Hub Pune,110.4,2.13,0,road
+Flipkart FC Bhiwandi,Blue Dart Hub Ahmedabad,420.5,8.1,0,road
+Flipkart FC Bhiwandi,Amazon FC Surat,208.3,4.01,0,road
+Flipkart FC Bhiwandi,Mahindra Logistics Nagpur,653.8,12.6,0,road
+Flipkart FC Bhiwandi,Rajkot Industrial Hub,407.6,7.86,0,road
+Flipkart FC Bhiwandi,Blue Dart Hub Indore,477.2,9.2,0,road
+Flipkart FC Bhiwandi,Flipkart Hub Vadodara,333.5,6.43,0,road
+Flipkart FC Bhiwandi,JNPT Port,42.4,0.82,0,road
+Flipkart FC Bhiwandi,Mumbai Port,49.5,0.95,0,road
+Flipkart FC Bhiwandi,Mumbai Airport BOM,32.2,0.62,0,road
+Amazon FC Manesar,Delhivery Hub Gurgaon,15.4,0.3,0,road
+Amazon FC Manesar,Amazon FC Noida,49.6,0.96,0,road
+Amazon FC Manesar,Delhivery Hub Jaipur,199.0,3.83,0,road
+Amazon FC Manesar,Ecom Express Lucknow,428.5,8.26,0,road
+Amazon FC Manesar,Ludhiana Industrial Hub,302.0,5.82,0,road
+Amazon FC Manesar,Panipat Textile Hub,115.8,2.23,0,road
+Amazon FC Manesar,Blue Dart Hub Indore,635.2,12.24,0,road
+Amazon FC Manesar,Amazon FC Chandigarh,265.4,5.12,0,road
+Amazon FC Manesar,Delhi Airport DEL,29.4,0.57,0,road
+Delhivery Hub Gurgaon,Amazon FC Manesar,15.4,0.3,0,road
+Delhivery Hub Gurgaon,Amazon FC Noida,36.6,0.71,0,road
+Delhivery Hub Gurgaon,Delhivery Hub Jaipur,214.4,4.13,0,road
+Delhivery Hub Gurgaon,Ecom Express Lucknow,424.5,8.18,0,road
+Delhivery Hub Gurgaon,Ludhiana Industrial Hub,294.0,5.67,0,road
+Delhivery Hub Gurgaon,Panipat Textile Hub,103.7,2.0,0,road
+Delhivery Hub Gurgaon,Blue Dart Hub Indore,648.9,12.51,0,road
+Delhivery Hub Gurgaon,Amazon FC Chandigarh,254.0,4.89,0,road
+Delhivery Hub Gurgaon,Delhi Airport DEL,14.1,0.27,0,road
+Amazon FC Noida,Amazon FC Manesar,49.6,0.96,0,road
+Amazon FC Noida,Delhivery Hub Gurgaon,36.6,0.71,0,road
+Amazon FC Noida,Delhivery Hub Jaipur,243.3,4.69,0,road
+Amazon FC Noida,Ecom Express Lucknow,395.9,7.63,0,road
+Amazon FC Noida,Ludhiana Industrial Hub,301.9,5.82,0,road
+Amazon FC Noida,Panipat Textile Hub,103.8,2.0,0,road
+Amazon FC Noida,Blue Dart Hub Indore,664.7,12.81,0,road
+Amazon FC Noida,Amazon FC Chandigarh,251.4,4.85,0,road
+Amazon FC Noida,Delhi Airport DEL,28.3,0.55,0,road
+Flipkart FC Bangalore,Amazon FC Bangalore,8.2,0.16,0,road
+Flipkart FC Bangalore,Amazon FC Hyderabad,514.8,9.92,0,road
+Flipkart FC Bangalore,Amazon FC Chennai,277.4,5.35,0,road
+Flipkart FC Bangalore,Delhivery Hub Coimbatore,216.7,4.18,0,road
+Flipkart FC Bangalore,Amazon FC Kochi,345.3,6.66,0,road
+Flipkart FC Bangalore,Tiruppur Textile Hub,195.6,3.77,0,road
+Flipkart FC Bangalore,Bangalore Airport BLR,40.3,0.78,0,road
+Amazon FC Bangalore,Flipkart FC Bangalore,8.2,0.16,0,road
+Amazon FC Bangalore,Amazon FC Hyderabad,507.0,9.77,0,road
+Amazon FC Bangalore,Amazon FC Chennai,278.4,5.37,0,road
+Amazon FC Bangalore,Delhivery Hub Coimbatore,223.9,4.31,0,road
+Amazon FC Bangalore,Amazon FC Kochi,352.1,6.79,0,road
+Amazon FC Bangalore,Tiruppur Textile Hub,203.3,3.92,0,road
+Amazon FC Bangalore,Bangalore Airport BLR,32.5,0.63,0,road
+Amazon FC Hyderabad,Amazon FC Bhiwandi,602.0,11.6,0,road
+Amazon FC Hyderabad,Flipkart FC Bhiwandi,601.9,11.6,0,road
+Amazon FC Hyderabad,Flipkart FC Bangalore,514.8,9.92,0,road
+Amazon FC Hyderabad,Amazon FC Bangalore,507.0,9.77,0,road
+Amazon FC Hyderabad,Amazon FC Chennai,529.5,10.21,0,road
+Amazon FC Hyderabad,XpressBees Hub Pune,500.9,9.65,0,road
+Amazon FC Hyderabad,Mahindra Logistics Nagpur,412.8,7.96,0,road
+Amazon FC Hyderabad,Amazon FC Visakhapatnam,519.9,10.02,0,road
+Amazon FC Hyderabad,Blue Dart Hub Indore,647.4,12.48,0,road
+Amazon FC Hyderabad,Hyderabad Airport HYD,19.3,0.37,0,road
+Amazon FC Chennai,Flipkart FC Bangalore,277.4,5.35,0,road
+Amazon FC Chennai,Amazon FC Bangalore,278.4,5.37,0,road
+Amazon FC Chennai,Amazon FC Hyderabad,529.5,10.21,0,road
+Amazon FC Chennai,Delhivery Hub Coimbatore,416.7,8.03,0,road
+Amazon FC Chennai,Amazon FC Kochi,536.7,10.34,0,road
+Amazon FC Chennai,Amazon FC Visakhapatnam,622.2,11.99,0,road
+Amazon FC Chennai,Tiruppur Textile Hub,375.9,7.24,0,road
+Amazon FC Chennai,Chennai Port,14.3,0.28,0,road
+Amazon FC Chennai,Ennore Port,28.2,0.54,0,road
+Amazon FC Chennai,Chennai Airport MAA,5.3,0.1,0,road
+Amazon FC Kolkata,Delhivery Hub Patna,465.4,8.97,0,road
+Amazon FC Kolkata,WCI Bhubaneswar,370.7,7.14,0,road
+Amazon FC Kolkata,Kolkata Port,8.5,0.16,0,road
+Amazon FC Kolkata,Haldia Port,71.1,1.37,0,road
+Amazon FC Kolkata,Kolkata Airport CCU,7.2,0.14,0,road
+XpressBees Hub Pune,Amazon FC Bhiwandi,109.9,2.12,0,road
+XpressBees Hub Pune,Flipkart FC Bhiwandi,110.4,2.13,0,road
+XpressBees Hub Pune,Amazon FC Hyderabad,500.9,9.65,0,road
+XpressBees Hub Pune,Blue Dart Hub Ahmedabad,507.9,9.79,0,road
+XpressBees Hub Pune,Amazon FC Surat,299.6,5.77,0,road
+XpressBees Hub Pune,Mahindra Logistics Nagpur,605.8,11.68,0,road
+XpressBees Hub Pune,Rajkot Industrial Hub,515.5,9.94,0,road
+XpressBees Hub Pune,Blue Dart Hub Indore,498.0,9.6,0,road
+XpressBees Hub Pune,Flipkart Hub Vadodara,412.3,7.95,0,road
+XpressBees Hub Pune,JNPT Port,102.2,1.97,0,road
+XpressBees Hub Pune,Mumbai Port,111.2,2.14,0,road
+XpressBees Hub Pune,Pune Airport PNQ,10.6,0.2,0,road
+Delhivery Hub Jaipur,Amazon FC Manesar,199.0,3.83,0,road
+Delhivery Hub Jaipur,Delhivery Hub Gurgaon,214.4,4.13,0,road
+Delhivery Hub Jaipur,Amazon FC Noida,243.3,4.69,0,road
+Delhivery Hub Jaipur,Ecom Express Lucknow,514.7,9.92,0,road
+Delhivery Hub Jaipur,Blue Dart Hub Ahmedabad,532.0,10.25,0,road
+Delhivery Hub Jaipur,Ludhiana Industrial Hub,445.7,8.59,0,road
+Delhivery Hub Jaipur,Panipat Textile Hub,301.8,5.82,0,road
+Delhivery Hub Jaipur,Blue Dart Hub Indore,464.2,8.95,0,road
+Delhivery Hub Jaipur,Amazon FC Chandigarh,438.4,8.45,0,road
+Delhivery Hub Jaipur,Flipkart Hub Vadodara,572.6,11.03,0,road
+Ecom Express Lucknow,Amazon FC Manesar,428.5,8.26,0,road
+Ecom Express Lucknow,Delhivery Hub Gurgaon,424.5,8.18,0,road
+Ecom Express Lucknow,Amazon FC Noida,395.9,7.63,0,road
+Ecom Express Lucknow,Delhivery Hub Jaipur,514.7,9.92,0,road
+Ecom Express Lucknow,Mahindra Logistics Nagpur,672.7,12.96,0,road
+Ecom Express Lucknow,Ludhiana Industrial Hub,667.9,12.87,0,road
+Ecom Express Lucknow,Panipat Textile Hub,480.7,9.26,0,road
+Ecom Express Lucknow,Blue Dart Hub Indore,690.4,13.31,0,road
+Ecom Express Lucknow,Delhivery Hub Patna,441.5,8.51,0,road
+Ecom Express Lucknow,Amazon FC Chandigarh,591.0,11.39,0,road
+Blue Dart Hub Ahmedabad,Amazon FC Bhiwandi,421.9,8.13,0,road
+Blue Dart Hub Ahmedabad,Flipkart FC Bhiwandi,420.5,8.1,0,road
+Blue Dart Hub Ahmedabad,XpressBees Hub Pune,507.9,9.79,0,road
+Blue Dart Hub Ahmedabad,Delhivery Hub Jaipur,532.0,10.25,0,road
+Blue Dart Hub Ahmedabad,Amazon FC Surat,212.2,4.09,0,road
+Blue Dart Hub Ahmedabad,Rajkot Industrial Hub,202.0,3.89,0,road
+Blue Dart Hub Ahmedabad,Blue Dart Hub Indore,337.0,6.49,0,road
+Blue Dart Hub Ahmedabad,Flipkart Hub Vadodara,103.9,2.0,0,road
+Blue Dart Hub Ahmedabad,Ahmedabad Airport AMD,4.8,0.09,0,road
+Amazon FC Surat,Amazon FC Bhiwandi,209.7,4.04,0,road
+Amazon FC Surat,Flipkart FC Bhiwandi,208.3,4.01,0,road
+Amazon FC Surat,XpressBees Hub Pune,299.6,5.77,0,road
+Amazon FC Surat,Blue Dart Hub Ahmedabad,212.2,4.09,0,road
+Amazon FC Surat,Mahindra Logistics Nagpur,644.2,12.42,0,road
+Amazon FC Surat,Rajkot Industrial Hub,244.6,4.71,0,road
+Amazon FC Surat,Blue Dart Hub Indore,356.5,6.87,0,road
+Amazon FC Surat,Flipkart Hub Vadodara,131.5,2.53,0,road
+Mahindra Logistics Nagpur,Amazon FC Bhiwandi,654.9,12.62,0,road
+Mahindra Logistics Nagpur,Flipkart FC Bhiwandi,653.8,12.6,0,road
+Mahindra Logistics Nagpur,Amazon FC Hyderabad,412.8,7.96,0,road
+Mahindra Logistics Nagpur,XpressBees Hub Pune,605.8,11.68,0,road
+Mahindra Logistics Nagpur,Ecom Express Lucknow,672.7,12.96,0,road
+Mahindra Logistics Nagpur,Amazon FC Surat,644.2,12.42,0,road
+Mahindra Logistics Nagpur,Amazon FC Visakhapatnam,581.8,11.21,0,road
+Mahindra Logistics Nagpur,Blue Dart Hub Indore,375.9,7.24,0,road
+Mahindra Logistics Nagpur,Flipkart Hub Vadodara,620.7,11.96,0,road
+Mahindra Logistics Nagpur,Nagpur Airport NAG,1.9,0.04,0,road
+Delhivery Hub Coimbatore,Flipkart FC Bangalore,216.7,4.18,0,road
+Delhivery Hub Coimbatore,Amazon FC Bangalore,223.9,4.31,0,road
+Delhivery Hub Coimbatore,Amazon FC Chennai,416.7,8.03,0,road
+Delhivery Hub Coimbatore,Amazon FC Kochi,130.2,2.51,0,road
+Delhivery Hub Coimbatore,Tiruppur Textile Hub,43.3,0.83,0,road
+Delhivery Hub Coimbatore,Kochi Port,139.0,2.68,0,road
+Amazon FC Kochi,Flipkart FC Bangalore,345.3,6.66,0,road
+Amazon FC Kochi,Amazon FC Bangalore,352.1,6.79,0,road
+Amazon FC Kochi,Amazon FC Chennai,536.7,10.34,0,road
+Amazon FC Kochi,Delhivery Hub Coimbatore,130.2,2.51,0,road
+Amazon FC Kochi,Tiruppur Textile Hub,163.9,3.16,0,road
+Amazon FC Kochi,Kochi Port,9.1,0.17,0,road
+Amazon FC Kochi,Kochi Airport COK,16.6,0.32,0,road
+Amazon FC Visakhapatnam,Amazon FC Hyderabad,519.9,10.02,0,road
+Amazon FC Visakhapatnam,Amazon FC Chennai,622.2,11.99,0,road
+Amazon FC Visakhapatnam,Mahindra Logistics Nagpur,581.8,11.21,0,road
+Amazon FC Visakhapatnam,WCI Bhubaneswar,390.1,7.52,0,road
+Amazon FC Visakhapatnam,Visakhapatnam Port,4.2,0.08,0,road
+Ludhiana Industrial Hub,Amazon FC Manesar,302.0,5.82,0,road
+Ludhiana Industrial Hub,Delhivery Hub Gurgaon,294.0,5.67,0,road
+Ludhiana Industrial Hub,Amazon FC Noida,301.9,5.82,0,road
+Ludhiana Industrial Hub,Delhivery Hub Jaipur,445.7,8.59,0,road
+Ludhiana Industrial Hub,Ecom Express Lucknow,667.9,12.87,0,road
+Ludhiana Industrial Hub,Panipat Textile Hub,198.8,3.83,0,road
+Ludhiana Industrial Hub,Amazon FC Chandigarh,90.0,1.73,0,road
+Panipat Textile Hub,Amazon FC Manesar,115.8,2.23,0,road
+Panipat Textile Hub,Delhivery Hub Gurgaon,103.7,2.0,0,road
+Panipat Textile Hub,Amazon FC Noida,103.8,2.0,0,road
+Panipat Textile Hub,Delhivery Hub Jaipur,301.8,5.82,0,road
+Panipat Textile Hub,Ecom Express Lucknow,480.7,9.26,0,road
+Panipat Textile Hub,Ludhiana Industrial Hub,198.8,3.83,0,road
+Panipat Textile Hub,Amazon FC Chandigarh,150.3,2.9,0,road
+Tiruppur Textile Hub,Flipkart FC Bangalore,195.6,3.77,0,road
+Tiruppur Textile Hub,Amazon FC Bangalore,203.3,3.92,0,road
+Tiruppur Textile Hub,Amazon FC Chennai,375.9,7.24,0,road
+Tiruppur Textile Hub,Delhivery Hub Coimbatore,43.3,0.83,0,road
+Tiruppur Textile Hub,Amazon FC Kochi,163.9,3.16,0,road
+Tiruppur Textile Hub,Kochi Port,173.0,3.33,0,road
+Rajkot Industrial Hub,Amazon FC Bhiwandi,408.5,7.87,0,road
+Rajkot Industrial Hub,Flipkart FC Bhiwandi,407.6,7.86,0,road
+Rajkot Industrial Hub,XpressBees Hub Pune,515.5,9.94,0,road
+Rajkot Industrial Hub,Blue Dart Hub Ahmedabad,202.0,3.89,0,road
+Rajkot Industrial Hub,Amazon FC Surat,244.6,4.71,0,road
+Rajkot Industrial Hub,Blue Dart Hub Indore,521.3,10.05,0,road
+Rajkot Industrial Hub,Flipkart Hub Vadodara,244.7,4.72,0,road
+Rajkot Industrial Hub,Kandla Port,94.8,1.83,0,road
+Rajkot Industrial Hub,Mundra Port,127.3,2.45,0,road
+Blue Dart Hub Indore,Amazon FC Bhiwandi,478.8,9.23,0,road
+Blue Dart Hub Indore,Flipkart FC Bhiwandi,477.2,9.2,0,road
+Blue Dart Hub Indore,Amazon FC Manesar,635.2,12.24,0,road
+Blue Dart Hub Indore,Delhivery Hub Gurgaon,648.9,12.51,0,road
+Blue Dart Hub Indore,Amazon FC Noida,664.7,12.81,0,road
+Blue Dart Hub Indore,Amazon FC Hyderabad,647.4,12.48,0,road
+Blue Dart Hub Indore,XpressBees Hub Pune,498.0,9.6,0,road
+Blue Dart Hub Indore,Delhivery Hub Jaipur,464.2,8.95,0,road
+Blue Dart Hub Indore,Ecom Express Lucknow,690.4,13.31,0,road
+Blue Dart Hub Indore,Blue Dart Hub Ahmedabad,337.0,6.49,0,road
+Blue Dart Hub Indore,Amazon FC Surat,356.5,6.87,0,road
+Blue Dart Hub Indore,Mahindra Logistics Nagpur,375.9,7.24,0,road
+Blue Dart Hub Indore,Rajkot Industrial Hub,521.3,10.05,0,road
+Blue Dart Hub Indore,Flipkart Hub Vadodara,278.7,5.37,0,road
+Delhivery Hub Patna,Amazon FC Kolkata,465.4,8.97,0,road
+Delhivery Hub Patna,Ecom Express Lucknow,441.5,8.51,0,road
+Delhivery Hub Patna,WCI Bhubaneswar,593.3,11.43,0,road
+WCI Bhubaneswar,Amazon FC Kolkata,370.7,7.14,0,road
+WCI Bhubaneswar,Amazon FC Visakhapatnam,390.1,7.52,0,road
+WCI Bhubaneswar,Delhivery Hub Patna,593.3,11.43,0,road
+WCI Bhubaneswar,Paradip Port,82.6,1.59,0,road
+Amazon FC Chandigarh,Amazon FC Manesar,265.4,5.12,0,road
+Amazon FC Chandigarh,Delhivery Hub Gurgaon,254.0,4.89,0,road
+Amazon FC Chandigarh,Amazon FC Noida,251.4,4.85,0,road
+Amazon FC Chandigarh,Delhivery Hub Jaipur,438.4,8.45,0,road
+Amazon FC Chandigarh,Ecom Express Lucknow,591.0,11.39,0,road
+Amazon FC Chandigarh,Ludhiana Industrial Hub,90.0,1.73,0,road
+Amazon FC Chandigarh,Panipat Textile Hub,150.3,2.9,0,road
+Flipkart Hub Vadodara,Amazon FC Bhiwandi,335.0,6.46,0,road
+Flipkart Hub Vadodara,Flipkart FC Bhiwandi,333.5,6.43,0,road
+Flipkart Hub Vadodara,XpressBees Hub Pune,412.3,7.95,0,road
+Flipkart Hub Vadodara,Delhivery Hub Jaipur,572.6,11.03,0,road
+Flipkart Hub Vadodara,Blue Dart Hub Ahmedabad,103.9,2.0,0,road
+Flipkart Hub Vadodara,Amazon FC Surat,131.5,2.53,0,road
+Flipkart Hub Vadodara,Mahindra Logistics Nagpur,620.7,11.96,0,road
+Flipkart Hub Vadodara,Rajkot Industrial Hub,244.7,4.72,0,road
+Flipkart Hub Vadodara,Blue Dart Hub Indore,278.7,5.37,0,road
+JNPT Port,Amazon FC Bhiwandi,40.8,0.79,0,road
+JNPT Port,Flipkart FC Bhiwandi,42.4,0.82,0,road
+JNPT Port,XpressBees Hub Pune,102.2,1.97,0,road
+JNPT Port,Mumbai Port,10.8,0.51,1,sea
+JNPT Port,Kandla Port,527.6,24.7,1,sea
+JNPT Port,Mundra Port,547.2,25.62,1,sea
+JNPT Port,Chennai Port,1020.8,47.79,1,sea
+JNPT Port,Ennore Port,1013.9,47.47,1,sea
+JNPT Port,Visakhapatnam Port,1100.6,51.53,1,sea
+JNPT Port,Paradip Port,1440.7,67.45,1,sea
+JNPT Port,Kolkata Port,1649.0,77.2,1,sea
+JNPT Port,Haldia Port,1613.0,75.52,1,sea
+JNPT Port,Kochi Port,1061.3,49.69,1,sea
+JNPT Port,New Mangalore Port,699.8,32.77,1,sea
+JNPT Port,Mormugao Port,405.3,18.98,1,sea
+JNPT Port,Tuticorin Port,1263.8,59.17,1,sea
+JNPT Port,Mumbai Airport BOM,17.1,0.33,0,road
+Mumbai Port,Amazon FC Bhiwandi,47.9,0.92,0,road
+Mumbai Port,Flipkart FC Bhiwandi,49.5,0.95,0,road
+Mumbai Port,XpressBees Hub Pune,111.2,2.14,0,road
+Mumbai Port,JNPT Port,10.8,0.51,1,sea
+Mumbai Port,Kandla Port,524.8,24.57,1,sea
+Mumbai Port,Mundra Port,543.5,25.44,1,sea
+Mumbai Port,Chennai Port,1027.0,48.08,1,sea
+Mumbai Port,Ennore Port,1020.2,47.77,1,sea
+Mumbai Port,Visakhapatnam Port,1110.6,52.0,1,sea
+Mumbai Port,Paradip Port,1451.4,67.95,1,sea
+Mumbai Port,Kolkata Port,1659.8,77.71,1,sea
+Mumbai Port,Haldia Port,1623.8,76.03,1,sea
+Mumbai Port,Kochi Port,1062.0,49.72,1,sea
+Mumbai Port,New Mangalore Port,700.0,32.77,1,sea
+Mumbai Port,Mormugao Port,404.8,18.95,1,sea
+Mumbai Port,Tuticorin Port,1265.8,59.26,1,sea
+Mumbai Port,Mumbai Airport BOM,18.9,0.36,0,road
+Kandla Port,Rajkot Industrial Hub,94.8,1.83,0,road
+Kandla Port,JNPT Port,527.6,24.7,1,sea
+Kandla Port,Mumbai Port,524.8,24.57,1,sea
+Kandla Port,Mundra Port,52.1,2.44,1,sea
+Kandla Port,Chennai Port,1528.5,71.56,1,sea
+Kandla Port,Ennore Port,1520.2,71.17,1,sea
+Kandla Port,Visakhapatnam Port,1482.7,69.42,1,sea
+Kandla Port,Paradip Port,1721.0,80.57,1,sea
+Kandla Port,Kolkata Port,1857.2,86.95,1,sea
+Kandla Port,Haldia Port,1837.1,86.01,1,sea
+Kandla Port,Kochi Port,1581.3,74.03,1,sea
+Kandla Port,New Mangalore Port,1216.9,56.97,1,sea
+Kandla Port,Mormugao Port,920.6,43.1,1,sea
+Kandla Port,Tuticorin Port,1789.9,83.8,1,sea
+Mundra Port,Rajkot Industrial Hub,127.3,2.45,0,road
+Mundra Port,JNPT Port,547.2,25.62,1,sea
+Mundra Port,Mumbai Port,543.5,25.44,1,sea
+Mundra Port,Kandla Port,52.1,2.44,1,sea
+Mundra Port,Chennai Port,1557.0,72.9,1,sea
+Mundra Port,Ennore Port,1549.0,72.52,1,sea
+Mundra Port,Visakhapatnam Port,1525.9,71.44,1,sea
+Mundra Port,Paradip Port,1769.9,82.86,1,sea
+Mundra Port,Kolkata Port,1908.3,89.34,1,sea
+Mundra Port,Haldia Port,1887.8,88.38,1,sea
+Mundra Port,Kochi Port,1592.5,74.56,1,sea
+Mundra Port,New Mangalore Port,1227.7,57.48,1,sea
+Mundra Port,Mormugao Port,932.2,43.64,1,sea
+Mundra Port,Tuticorin Port,1804.9,84.5,1,sea
+Chennai Port,Amazon FC Chennai,14.3,0.28,0,road
+Chennai Port,JNPT Port,1020.8,47.79,1,sea
+Chennai Port,Mumbai Port,1027.0,48.08,1,sea
+Chennai Port,Kandla Port,1528.5,71.56,1,sea
+Chennai Port,Mundra Port,1557.0,72.9,1,sea
+Chennai Port,Ennore Port,14.4,0.67,1,sea
+Chennai Port,Visakhapatnam Port,603.7,28.26,1,sea
+Chennai Port,Paradip Port,1048.3,49.08,1,sea
+Chennai Port,Kolkata Port,1354.2,63.4,1,sea
+Chennai Port,Haldia Port,1293.6,60.56,1,sea
+Chennai Port,Kochi Port,559.2,26.18,1,sea
+Chennai Port,New Mangalore Port,594.0,27.81,1,sea
+Chennai Port,Mormugao Port,745.1,34.88,1,sea
+Chennai Port,Tuticorin Port,535.4,25.07,1,sea
+Chennai Port,Chennai Airport MAA,16.7,0.32,0,road
+Ennore Port,Amazon FC Chennai,28.2,0.54,0,road
+Ennore Port,JNPT Port,1013.9,47.47,1,sea
+Ennore Port,Mumbai Port,1020.2,47.77,1,sea
+Ennore Port,Kandla Port,1520.2,71.17,1,sea
+Ennore Port,Mundra Port,1549.0,72.52,1,sea
+Ennore Port,Chennai Port,14.4,0.67,1,sea
+Ennore Port,Visakhapatnam Port,590.2,27.63,1,sea
+Ennore Port,Paradip Port,1035.6,48.48,1,sea
+Ennore Port,Kolkata Port,1341.3,62.79,1,sea
+Ennore Port,Haldia Port,1280.7,59.96,1,sea
+Ennore Port,Kochi Port,570.2,26.7,1,sea
+Ennore Port,New Mangalore Port,597.4,27.97,1,sea
+Ennore Port,Mormugao Port,742.9,34.78,1,sea
+Ennore Port,Tuticorin Port,549.4,25.72,1,sea
+Ennore Port,Chennai Airport MAA,29.4,0.57,0,road
+Visakhapatnam Port,Amazon FC Visakhapatnam,4.2,0.08,0,road
+Visakhapatnam Port,JNPT Port,1100.6,51.53,1,sea
+Visakhapatnam Port,Mumbai Port,1110.6,52.0,1,sea
+Visakhapatnam Port,Kandla Port,1482.7,69.42,1,sea
+Visakhapatnam Port,Mundra Port,1525.9,71.44,1,sea
+Visakhapatnam Port,Chennai Port,603.7,28.26,1,sea
+Visakhapatnam Port,Ennore Port,590.2,27.63,1,sea
+Visakhapatnam Port,Paradip Port,456.4,21.37,1,sea
+Visakhapatnam Port,Kolkata Port,756.4,35.41,1,sea
+Visakhapatnam Port,Haldia Port,697.7,32.67,1,sea
+Visakhapatnam Port,Kochi Port,1144.6,53.59,1,sea
+Visakhapatnam Port,New Mangalore Port,1051.5,49.23,1,sea
+Visakhapatnam Port,Mormugao Port,1041.7,48.77,1,sea
+Visakhapatnam Port,Tuticorin Port,1137.9,53.28,1,sea
+Paradip Port,WCI Bhubaneswar,82.6,1.59,0,road
+Paradip Port,JNPT Port,1440.7,67.45,1,sea
+Paradip Port,Mumbai Port,1451.4,67.95,1,sea
+Paradip Port,Kandla Port,1721.0,80.57,1,sea
+Paradip Port,Mundra Port,1769.9,82.86,1,sea
+Paradip Port,Chennai Port,1048.3,49.08,1,sea
+Paradip Port,Ennore Port,1035.6,48.48,1,sea
+Paradip Port,Visakhapatnam Port,456.4,21.37,1,sea
+Paradip Port,Kolkata Port,307.3,14.39,1,sea
+Paradip Port,Haldia Port,245.6,11.5,1,sea
+Paradip Port,Kochi Port,1598.2,74.83,1,sea
+Paradip Port,New Mangalore Port,1501.9,70.32,1,sea
+Paradip Port,Mormugao Port,1461.8,68.44,1,sea
+Paradip Port,Tuticorin Port,1574.8,73.73,1,sea
+Kolkata Port,Amazon FC Kolkata,8.5,0.16,0,road
+Kolkata Port,JNPT Port,1649.0,77.2,1,sea
+Kolkata Port,Mumbai Port,1659.8,77.71,1,sea
+Kolkata Port,Kandla Port,1857.2,86.95,1,sea
+Kolkata Port,Mundra Port,1908.3,89.34,1,sea
+Kolkata Port,Chennai Port,1354.2,63.4,1,sea
+Kolkata Port,Ennore Port,1341.3,62.79,1,sea
+Kolkata Port,Visakhapatnam Port,756.4,35.41,1,sea
+Kolkata Port,Paradip Port,307.3,14.39,1,sea
+Kolkata Port,Haldia Port,63.1,2.96,1,sea
+Kolkata Port,Kochi Port,1900.9,89.0,1,sea
+Kolkata Port,New Mangalore Port,1787.0,83.67,1,sea
+Kolkata Port,Mormugao Port,1721.2,80.59,1,sea
+Kolkata Port,Tuticorin Port,1882.0,88.11,1,sea
+Kolkata Port,Kolkata Airport CCU,15.2,0.29,0,road
+Haldia Port,Amazon FC Kolkata,71.1,1.37,0,road
+Haldia Port,JNPT Port,1613.0,75.52,1,sea
+Haldia Port,Mumbai Port,1623.8,76.03,1,sea
+Haldia Port,Kandla Port,1837.1,86.01,1,sea
+Haldia Port,Mundra Port,1887.8,88.38,1,sea
+Haldia Port,Chennai Port,1293.6,60.56,1,sea
+Haldia Port,Ennore Port,1280.7,59.96,1,sea
+Haldia Port,Visakhapatnam Port,697.7,32.67,1,sea
+Haldia Port,Paradip Port,245.6,11.5,1,sea
+Haldia Port,Kolkata Port,63.1,2.96,1,sea
+Haldia Port,Kochi Port,1841.8,86.23,1,sea
+Haldia Port,New Mangalore Port,1733.3,81.15,1,sea
+Haldia Port,Mormugao Port,1673.8,78.37,1,sea
+Haldia Port,Tuticorin Port,1820.4,85.23,1,sea
+Kochi Port,Delhivery Hub Coimbatore,139.0,2.68,0,road
+Kochi Port,Amazon FC Kochi,9.1,0.17,0,road
+Kochi Port,Tiruppur Textile Hub,173.0,3.33,0,road
+Kochi Port,JNPT Port,1061.3,49.69,1,sea
+Kochi Port,Mumbai Port,1062.0,49.72,1,sea
+Kochi Port,Kandla Port,1581.3,74.03,1,sea
+Kochi Port,Mundra Port,1592.5,74.56,1,sea
+Kochi Port,Chennai Port,559.2,26.18,1,sea
+Kochi Port,Ennore Port,570.2,26.7,1,sea
+Kochi Port,Visakhapatnam Port,1144.6,53.59,1,sea
+Kochi Port,Paradip Port,1598.2,74.83,1,sea
+Kochi Port,Kolkata Port,1900.9,89.0,1,sea
+Kochi Port,Haldia Port,1841.8,86.23,1,sea
+Kochi Port,New Mangalore Port,364.8,17.08,1,sea
+Kochi Port,Mormugao Port,660.7,30.93,1,sea
+Kochi Port,Tuticorin Port,244.7,11.46,1,sea
+Kochi Port,Kochi Airport COK,25.4,0.49,0,road
+New Mangalore Port,JNPT Port,699.8,32.77,1,sea
+New Mangalore Port,Mumbai Port,700.0,32.77,1,sea
+New Mangalore Port,Kandla Port,1216.9,56.97,1,sea
+New Mangalore Port,Mundra Port,1227.7,57.48,1,sea
+New Mangalore Port,Chennai Port,594.0,27.81,1,sea
+New Mangalore Port,Ennore Port,597.4,27.97,1,sea
+New Mangalore Port,Visakhapatnam Port,1051.5,49.23,1,sea
+New Mangalore Port,Paradip Port,1501.9,70.32,1,sea
+New Mangalore Port,Kolkata Port,1787.0,83.67,1,sea
+New Mangalore Port,Haldia Port,1733.3,81.15,1,sea
+New Mangalore Port,Kochi Port,364.8,17.08,1,sea
+New Mangalore Port,Mormugao Port,296.5,13.88,1,sea
+New Mangalore Port,Tuticorin Port,587.6,27.51,1,sea
+Mormugao Port,JNPT Port,405.3,18.98,1,sea
+Mormugao Port,Mumbai Port,404.8,18.95,1,sea
+Mormugao Port,Kandla Port,920.6,43.1,1,sea
+Mormugao Port,Mundra Port,932.2,43.64,1,sea
+Mormugao Port,Chennai Port,745.1,34.88,1,sea
+Mormugao Port,Ennore Port,742.9,34.78,1,sea
+Mormugao Port,Visakhapatnam Port,1041.7,48.77,1,sea
+Mormugao Port,Paradip Port,1461.8,68.44,1,sea
+Mormugao Port,Kolkata Port,1721.2,80.59,1,sea
+Mormugao Port,Haldia Port,1673.8,78.37,1,sea
+Mormugao Port,Kochi Port,660.7,30.93,1,sea
+Mormugao Port,New Mangalore Port,296.5,13.88,1,sea
+Mormugao Port,Tuticorin Port,875.4,40.98,1,sea
+Tuticorin Port,JNPT Port,1263.8,59.17,1,sea
+Tuticorin Port,Mumbai Port,1265.8,59.26,1,sea
+Tuticorin Port,Kandla Port,1789.9,83.8,1,sea
+Tuticorin Port,Mundra Port,1804.9,84.5,1,sea
+Tuticorin Port,Chennai Port,535.4,25.07,1,sea
+Tuticorin Port,Ennore Port,549.4,25.72,1,sea
+Tuticorin Port,Visakhapatnam Port,1137.9,53.28,1,sea
+Tuticorin Port,Paradip Port,1574.8,73.73,1,sea
+Tuticorin Port,Kolkata Port,1882.0,88.11,1,sea
+Tuticorin Port,Haldia Port,1820.4,85.23,1,sea
+Tuticorin Port,Kochi Port,244.7,11.46,1,sea
+Tuticorin Port,New Mangalore Port,587.6,27.51,1,sea
+Tuticorin Port,Mormugao Port,875.4,40.98,1,sea
+Mumbai Airport BOM,Amazon FC Bhiwandi,30.7,0.59,0,road
+Mumbai Airport BOM,Flipkart FC Bhiwandi,32.2,0.62,0,road
+Mumbai Airport BOM,JNPT Port,17.1,0.33,0,road
+Mumbai Airport BOM,Mumbai Port,18.9,0.36,0,road
+Mumbai Airport BOM,Delhi Airport DEL,1138.2,1.64,2,air
+Mumbai Airport BOM,Bangalore Airport BLR,834.4,1.2,2,air
+Mumbai Airport BOM,Chennai Airport MAA,1033.5,1.49,2,air
+Mumbai Airport BOM,Kolkata Airport CCU,1665.6,2.4,2,air
+Mumbai Airport BOM,Hyderabad Airport HYD,622.7,0.9,2,air
+Mumbai Airport BOM,Ahmedabad Airport AMD,444.0,0.64,2,air
+Mumbai Airport BOM,Kochi Airport COK,1064.0,1.53,2,air
+Mumbai Airport BOM,Pune Airport PNQ,124.5,0.18,2,air
+Mumbai Airport BOM,Nagpur Airport NAG,682.8,0.98,2,air
+Delhi Airport DEL,Amazon FC Manesar,29.4,0.57,0,road
+Delhi Airport DEL,Delhivery Hub Gurgaon,14.1,0.27,0,road
+Delhi Airport DEL,Amazon FC Noida,28.3,0.55,0,road
+Delhi Airport DEL,Mumbai Airport BOM,1138.2,1.64,2,air
+Delhi Airport DEL,Bangalore Airport BLR,1710.0,2.46,2,air
+Delhi Airport DEL,Chennai Airport MAA,1760.4,2.54,2,air
+Delhi Airport DEL,Kolkata Airport CCU,1312.8,1.89,2,air
+Delhi Airport DEL,Hyderabad Airport HYD,1266.7,1.82,2,air
+Delhi Airport DEL,Ahmedabad Airport AMD,756.5,1.09,2,air
+Delhi Airport DEL,Kochi Airport COK,2048.9,2.95,2,air
+Delhi Airport DEL,Pune Airport PNQ,1156.5,1.67,2,air
+Delhi Airport DEL,Nagpur Airport NAG,853.9,1.23,2,air
+Bangalore Airport BLR,Flipkart FC Bangalore,40.3,0.78,0,road
+Bangalore Airport BLR,Amazon FC Bangalore,32.5,0.63,0,road
+Bangalore Airport BLR,Mumbai Airport BOM,834.4,1.2,2,air
+Bangalore Airport BLR,Delhi Airport DEL,1710.0,2.46,2,air
+Bangalore Airport BLR,Chennai Airport MAA,267.9,0.39,2,air
+Bangalore Airport BLR,Kolkata Airport CCU,1546.5,2.23,2,air
+Bangalore Airport BLR,Hyderabad Airport HYD,456.1,0.66,2,air
+Bangalore Airport BLR,Ahmedabad Airport AMD,1221.8,1.76,2,air
+Bangalore Airport BLR,Kochi Airport COK,367.3,0.53,2,air
+Bangalore Airport BLR,Pune Airport PNQ,722.6,1.04,2,air
+Bangalore Airport BLR,Nagpur Airport NAG,889.2,1.28,2,air
+Chennai Airport MAA,Amazon FC Chennai,5.3,0.1,0,road
+Chennai Airport MAA,Chennai Port,16.7,0.32,0,road
+Chennai Airport MAA,Ennore Port,29.4,0.57,0,road
+Chennai Airport MAA,Mumbai Airport BOM,1033.5,1.49,2,air
+Chennai Airport MAA,Delhi Airport DEL,1760.4,2.54,2,air
+Chennai Airport MAA,Bangalore Airport BLR,267.9,0.39,2,air
+Chennai Airport MAA,Kolkata Airport CCU,1385.0,1.99,2,air
+Chennai Airport MAA,Hyderabad Airport HYD,507.8,0.73,2,air
+Chennai Airport MAA,Ahmedabad Airport AMD,1374.7,1.98,2,air
+Chennai Airport MAA,Kochi Airport COK,518.1,0.75,2,air
+Chennai Airport MAA,Pune Airport PNQ,912.7,1.31,2,air
+Chennai Airport MAA,Nagpur Airport NAG,908.3,1.31,2,air
+Kolkata Airport CCU,Amazon FC Kolkata,7.2,0.14,0,road
+Kolkata Airport CCU,Kolkata Port,15.2,0.29,0,road
+Kolkata Airport CCU,Mumbai Airport BOM,1665.6,2.4,2,air
+Kolkata Airport CCU,Delhi Airport DEL,1312.8,1.89,2,air
+Kolkata Airport CCU,Bangalore Airport BLR,1546.5,2.23,2,air
+Kolkata Airport CCU,Chennai Airport MAA,1385.0,1.99,2,air
+Kolkata Airport CCU,Hyderabad Airport HYD,1207.0,1.74,2,air
+Kolkata Airport CCU,Ahmedabad Airport AMD,1619.9,2.33,2,air
+Kolkata Airport CCU,Kochi Airport COK,1890.5,2.72,2,air
+Kolkata Airport CCU,Pune Airport PNQ,1577.2,2.27,2,air
+Kolkata Airport CCU,Nagpur Airport NAG,985.1,1.42,2,air
+Hyderabad Airport HYD,Amazon FC Hyderabad,19.3,0.37,0,road
+Hyderabad Airport HYD,Mumbai Airport BOM,622.7,0.9,2,air
+Hyderabad Airport HYD,Delhi Airport DEL,1266.7,1.82,2,air
+Hyderabad Airport HYD,Bangalore Airport BLR,456.1,0.66,2,air
+Hyderabad Airport HYD,Chennai Airport MAA,507.8,0.73,2,air
+Hyderabad Airport HYD,Kolkata Airport CCU,1207.0,1.74,2,air
+Hyderabad Airport HYD,Ahmedabad Airport AMD,886.9,1.28,2,air
+Hyderabad Airport HYD,Kochi Airport COK,818.0,1.18,2,air
+Hyderabad Airport HYD,Pune Airport PNQ,499.9,0.72,2,air
+Hyderabad Airport HYD,Nagpur Airport NAG,433.2,0.62,2,air
+Ahmedabad Airport AMD,Blue Dart Hub Ahmedabad,4.8,0.09,0,road
+Ahmedabad Airport AMD,Mumbai Airport BOM,444.0,0.64,2,air
+Ahmedabad Airport AMD,Delhi Airport DEL,756.5,1.09,2,air
+Ahmedabad Airport AMD,Bangalore Airport BLR,1221.8,1.76,2,air
+Ahmedabad Airport AMD,Chennai Airport MAA,1374.7,1.98,2,air
+Ahmedabad Airport AMD,Kolkata Airport CCU,1619.9,2.33,2,air
+Ahmedabad Airport AMD,Hyderabad Airport HYD,886.9,1.28,2,air
+Ahmedabad Airport AMD,Kochi Airport COK,1491.9,2.15,2,air
+Ahmedabad Airport AMD,Pune Airport PNQ,517.3,0.74,2,air
+Ahmedabad Airport AMD,Nagpur Airport NAG,696.5,1.0,2,air
+Kochi Airport COK,Amazon FC Kochi,16.6,0.32,0,road
+Kochi Airport COK,Kochi Port,25.4,0.49,0,road
+Kochi Airport COK,Mumbai Airport BOM,1064.0,1.53,2,air
+Kochi Airport COK,Delhi Airport DEL,2048.9,2.95,2,air
+Kochi Airport COK,Bangalore Airport BLR,367.3,0.53,2,air
+Kochi Airport COK,Chennai Airport MAA,518.1,0.75,2,air
+Kochi Airport COK,Kolkata Airport CCU,1890.5,2.72,2,air
+Kochi Airport COK,Hyderabad Airport HYD,818.0,1.18,2,air
+Kochi Airport COK,Ahmedabad Airport AMD,1491.9,2.15,2,air
+Kochi Airport COK,Pune Airport PNQ,974.7,1.4,2,air
+Kochi Airport COK,Nagpur Airport NAG,1248.9,1.8,2,air
+Pune Airport PNQ,XpressBees Hub Pune,10.6,0.2,0,road
+Pune Airport PNQ,Mumbai Airport BOM,124.5,0.18,2,air
+Pune Airport PNQ,Delhi Airport DEL,1156.5,1.67,2,air
+Pune Airport PNQ,Bangalore Airport BLR,722.6,1.04,2,air
+Pune Airport PNQ,Chennai Airport MAA,912.7,1.31,2,air
+Pune Airport PNQ,Kolkata Airport CCU,1577.2,2.27,2,air
+Pune Airport PNQ,Hyderabad Airport HYD,499.9,0.72,2,air
+Pune Airport PNQ,Ahmedabad Airport AMD,517.3,0.74,2,air
+Pune Airport PNQ,Kochi Airport COK,974.7,1.4,2,air
+Pune Airport PNQ,Nagpur Airport NAG,604.5,0.87,2,air
+Nagpur Airport NAG,Mahindra Logistics Nagpur,1.9,0.04,0,road
+Nagpur Airport NAG,Mumbai Airport BOM,682.8,0.98,2,air
+Nagpur Airport NAG,Delhi Airport DEL,853.9,1.23,2,air
+Nagpur Airport NAG,Bangalore Airport BLR,889.2,1.28,2,air
+Nagpur Airport NAG,Chennai Airport MAA,908.3,1.31,2,air
+Nagpur Airport NAG,Kolkata Airport CCU,985.1,1.42,2,air
+Nagpur Airport NAG,Hyderabad Airport HYD,433.2,0.62,2,air
+Nagpur Airport NAG,Ahmedabad Airport AMD,696.5,1.0,2,air
+Nagpur Airport NAG,Kochi Airport COK,1248.9,1.8,2,air
+Nagpur Airport NAG,Pune Airport PNQ,604.5,0.87,2,air

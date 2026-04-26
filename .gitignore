@@ -1,0 +1,32 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+
+# Secrets
+.streamlit/secrets.toml
+
+# Trained models (large binaries)
+trained_models/*.joblib
+trained_models/*.npy
+!trained_models/.gitkeep
+
+# Generated data (reproducible via run_pipeline.py)
+data/processed/shipments.csv
+data/processed/ecommerce_shipments.csv
+data/processed/olist_shipments.csv
+data/processed/eda_summary.md
+data/raw/
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db

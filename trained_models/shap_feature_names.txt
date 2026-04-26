@@ -1,0 +1,9 @@
+distance_km
+weather_score
+traffic_score
+warehouse_load
+hist_avg_delay_hrs
+transport_mode
+port_congestion
+vessel_delay_hrs
+flight_delay_min
