@@ -30,3 +30,7 @@ frontend/dist/
 .vscode/
 .idea/
 Thumbs.db
+
+# Local test/cache artifacts
+.pytest_cache/
+pytest-cache-files-*/
