@@ -112,8 +112,7 @@ async def _aisstream_async(api_key: str, duration: float = 7.0) -> list[dict]:
     url = "wss://stream.aisstream.io/v0/stream"
     subscribe = json.dumps({
         "APIKey": api_key,
-        "BoundingBoxes": [[[8.0, 68.0], [37.0, 97.0]]],
-        "FilterMessageTypes": ["PositionReport", "ShipStaticData"],
+        "BoundingBoxes": [[[-90.0, -180.0], [90.0, 180.0]]],  # global — filter by position client-side
     })
 
     positions: dict[int, dict]            = {}
@@ -135,12 +134,12 @@ async def _aisstream_async(api_key: str, duration: float = 7.0) -> list[dict]:
                     if not mmsi:
                         continue
 
-                    if mtype == "PositionReport":
-                        pr  = msg["Message"]["PositionReport"]
+                    if mtype in ("PositionReport", "StandardClassBPositionReport"):
+                        pr  = msg["Message"].get("PositionReport") or msg["Message"].get("StandardClassBPositionReport", {})
                         lat = float(pr.get("Latitude", 0))
                         lon = float(pr.get("Longitude", 0))
-                        if not (8.0 <= lat <= 37.0 and 68.0 <= lon <= 97.0):
-                            continue
+                        if lat == 0.0 and lon == 0.0:
+                            continue  # skip invalid positions
                         name, tcode = static.get(mmsi, (meta.get("ShipName", ""), 70))
                         positions[mmsi] = _normalise(
                             mmsi, name, lat, lon,
@@ -170,7 +169,7 @@ async def _aisstream_async(api_key: str, duration: float = 7.0) -> list[dict]:
     return list(positions.values())
 
 
-def _fetch_aisstream(api_key: str, timeout: int = 3) -> list[dict]:
+def _fetch_aisstream(api_key: str, timeout: int = 5) -> list[dict]:
     """Synchronous wrapper — runs async code in a separate thread to avoid
     conflicts with Streamlit's internal event loop."""
     def _run():
@@ -189,7 +188,7 @@ def _fetch_aisstream(api_key: str, timeout: int = 3) -> list[dict]:
 
 # ── Public API ─────────────────────────────────────────────────────────────────
 
-def get_vessels_near_india(timeout: int = 3) -> list[dict]:
+def get_vessels_near_india(timeout: int = 5) -> list[dict]:
     """Return vessels near Indian ports. Uses aisstream.io if key set, else simulation."""
     if AISSTREAM_API_KEY:
         return _fetch_aisstream(AISSTREAM_API_KEY, timeout)

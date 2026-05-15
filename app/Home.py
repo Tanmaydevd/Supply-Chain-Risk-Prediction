@@ -60,7 +60,7 @@ def _threats():
 
     def _vessels_all():
         # fetch once, then derive all 3 ports from single call
-        get_vessels_near_india(timeout=3)
+        get_vessels_near_india(timeout=5)
         return {p: get_port_congestion(p) for p in ["JNPT","Chennai","Visakhapatnam"]}
 
     def _flights():
