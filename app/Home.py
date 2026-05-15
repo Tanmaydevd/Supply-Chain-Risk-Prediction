@@ -47,68 +47,88 @@ except FileNotFoundError:
     graph_ok, G, m_data = False, None, {"n_nodes":15,"n_edges":36,"avg_risk":0,"n_critical":5}
 
 # ── live weather threats ───────────────────────────────────────────────────────
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=600)
 def _threats():
-    from services.vessel_service import get_port_congestion
+    from services.vessel_service import get_port_congestion, get_vessels_near_india
     from services.flight_service import get_cargo_flights
+    from services.news_service   import get_disruption_news
+    from concurrent.futures      import ThreadPoolExecutor, as_completed
+
+    # ── Fetch all data sources in parallel ────────────────────────────────────
+    def _weather_all():
+        return {c: get_weather(c) for c in ["Mumbai","Delhi","Chennai","Kolkata","Bangalore"]}
+
+    def _vessels_all():
+        # fetch once, then derive all 3 ports from single call
+        get_vessels_near_india(timeout=3)
+        return {p: get_port_congestion(p) for p in ["JNPT","Chennai","Visakhapatnam"]}
+
+    def _flights():
+        try:    return get_cargo_flights(timeout=4)
+        except: return []
+
+    def _news():
+        try:    return get_disruption_news(max_results=3)
+        except: return []
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        fw = pool.submit(_weather_all)
+        fv = pool.submit(_vessels_all)
+        ff = pool.submit(_flights)
+        fn = pool.submit(_news)
+        weather_data  = fw.result()
+        port_data     = fv.result()
+        flight_data   = ff.result()
+        news_data     = fn.result()
 
     results = []
 
-    # ── Weather — always show all 5 cities with real WMO data ─────────────────
-    for city in ["Mumbai", "Delhi", "Chennai", "Kolkata", "Bangalore"]:
-        w = get_weather(city)
+    # ── Weather ───────────────────────────────────────────────────────────────
+    for city, w in weather_data.items():
         if w["score"] == 2:
-            title, sev, action = "Storm Alert",          "Critical", "Reroute advised"
+            title, sev, action = "Storm Alert",           "Critical", "Reroute advised"
         elif w["score"] == 1:
-            title, sev, action = "Rain / Low Visibility","Medium",   "Monitor"
+            title, sev, action = "Rain / Low Visibility", "Medium",   "Monitor"
         else:
-            title, sev, action = "Clear Conditions",     "Low",      "On schedule"
+            title, sev, action = "Clear Conditions",      "Low",      "On schedule"
         results.append({
-            "title":  title,
-            "loc":    f"{city} Hub",
-            "sev":    sev,
-            "orders": "—",
-            "action": action,
+            "title":  title, "loc": f"{city} Hub", "sev": sev,
+            "orders": "—",   "action": action,
             "detail": f"{w['precipitation_mm']}mm · {w['windspeed_kmh']}km/h",
         })
 
-    # ── Port congestion — always show all 3 ports with real vessel data ────────
-    for port in ["JNPT", "Chennai", "Visakhapatnam"]:
-        c = get_port_congestion(port)
-        if c["congestion"] > 0.75:
-            sev, action = "High",   "Delayed"
-        elif c["congestion"] > 0.4:
-            sev, action = "Medium", "Monitor"
-        else:
-            sev, action = "Low",    "Normal"
+    # ── Port congestion ───────────────────────────────────────────────────────
+    for port, c in port_data.items():
+        if c["congestion"] > 0.75:   sev, action = "High",   "Delayed"
+        elif c["congestion"] > 0.4:  sev, action = "Medium", "Monitor"
+        else:                        sev, action = "Low",     "Normal"
         results.append({
             "title":  "Port Congestion" if c["congestion"] > 0.4 else "Port Clear",
-            "loc":    f"{port} Port",
-            "sev":    sev,
-            "orders": f"{c['vessel_count']} vessels",
-            "action": action,
+            "loc":    f"{port} Port", "sev": sev,
+            "orders": f"{c['vessel_count']} vessels", "action": action,
             "detail": f"{c['vessel_count']} vessels within 50nm · wait ~{c['avg_wait_hrs']:.0f}h",
         })
 
-    # ── Cargo flights — always show real OpenSky grounded count ───────────────
-    try:
-        flights     = get_cargo_flights(timeout=4)
-        airborne    = [f for f in flights if f["is_cargo"] and not f["on_ground"]]
-        on_ground   = [f for f in flights if f["is_cargo"] and f["on_ground"]]
-        if len(on_ground) > 5:
-            sev, title, action = "Medium", "Airport Cargo Backlog", "Delayed"
-        else:
-            sev, title, action = "Low",    "Cargo Flights Normal",  "On schedule"
+    # ── Cargo flights ─────────────────────────────────────────────────────────
+    if flight_data:
+        airborne  = [f for f in flight_data if f["is_cargo"] and not f["on_ground"]]
+        on_ground = [f for f in flight_data if f["is_cargo"] and f["on_ground"]]
+        sev    = "Medium" if len(on_ground) > 5 else "Low"
+        title  = "Airport Cargo Backlog" if len(on_ground) > 5 else "Cargo Flights Normal"
+        action = "Delayed" if len(on_ground) > 5 else "On schedule"
         results.append({
-            "title":  title,
-            "loc":    "Indian Airspace",
-            "sev":    sev,
-            "orders": f"{len(airborne)} airborne",
-            "action": action,
+            "title":  title, "loc": "Indian Airspace", "sev": sev,
+            "orders": f"{len(airborne)} airborne",     "action": action,
             "detail": f"{len(airborne)} airborne · {len(on_ground)} on ground (OpenSky live)",
         })
-    except Exception:
-        pass
+
+    # ── News alerts ───────────────────────────────────────────────────────────
+    for article in news_data:
+        results.append({
+            "title":  article["title"],  "loc":    article["loc"],
+            "sev":    article["sev"],    "orders": article.get("time","—"),
+            "action": article["action"], "detail": article["detail"],
+        })
 
     return results
 

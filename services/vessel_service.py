@@ -170,7 +170,7 @@ async def _aisstream_async(api_key: str, duration: float = 7.0) -> list[dict]:
     return list(positions.values())
 
 
-def _fetch_aisstream(api_key: str, timeout: int = 8) -> list[dict]:
+def _fetch_aisstream(api_key: str, timeout: int = 3) -> list[dict]:
     """Synchronous wrapper — runs async code in a separate thread to avoid
     conflicts with Streamlit's internal event loop."""
     def _run():
@@ -189,7 +189,7 @@ def _fetch_aisstream(api_key: str, timeout: int = 8) -> list[dict]:
 
 # ── Public API ─────────────────────────────────────────────────────────────────
 
-def get_vessels_near_india(timeout: int = 8) -> list[dict]:
+def get_vessels_near_india(timeout: int = 3) -> list[dict]:
     """Return vessels near Indian ports. Uses aisstream.io if key set, else simulation."""
     if AISSTREAM_API_KEY:
         return _fetch_aisstream(AISSTREAM_API_KEY, timeout)
