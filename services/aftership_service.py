@@ -57,22 +57,27 @@ def get_all_trackings(limit: int = 50) -> list[dict]:
     if not AFTERSHIP_KEY:
         return _demo_trackings()
 
-    try:
-        resp = requests.get(
-            f"{_BASE}/trackings",
-            headers=_HEADERS,
-            params={"limit": limit, "fields": "tracking_number,slug,tag,title,origin_country_iso3,"
-                    "destination_country_iso3,estimated_delivery,last_updated_at"},
-            timeout=8,
-        )
-        resp.raise_for_status()
-        body = resp.json()
-        # new API: { data: { trackings: [...] } } or { trackings: [...] }
-        raw = (body.get("data") or {}).get("trackings") or body.get("trackings", [])
-        return [_normalise(t) for t in raw]
-    except Exception as exc:
-        print(f"[aftership] fetch failed ({exc})")
-        return []
+    import time
+    for attempt in range(3):
+        try:
+            resp = requests.get(
+                f"{_BASE}/trackings",
+                headers=_HEADERS,
+                params={"limit": limit, "fields": "tracking_number,slug,tag,title,origin_country_iso3,"
+                        "destination_country_iso3,estimated_delivery,last_updated_at"},
+                timeout=8,
+            )
+            if resp.status_code == 429:
+                time.sleep(2 ** attempt)  # backoff: 1s, 2s, 4s
+                continue
+            resp.raise_for_status()
+            body = resp.json()
+            raw = (body.get("data") or {}).get("trackings") or body.get("trackings", [])
+            return [_normalise(t) for t in raw]
+        except Exception as exc:
+            print(f"[aftership] fetch failed ({exc})")
+            return []
+    return []
 
 
 def add_tracking(tracking_number: str, slug: str, title: str = "") -> dict:

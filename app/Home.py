@@ -339,7 +339,7 @@ st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 import pandas as pd
 from services.aftership_service import get_all_trackings
 
-@st.cache_data(ttl=120)
+@st.cache_data(ttl=600)
 def _load_shipments():
     return get_all_trackings(limit=20)
 
