@@ -16,11 +16,13 @@ import folium
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import streamlit.components.v1 as components
 from streamlit_folium import st_folium
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from styles import inject; inject()
 
 from graph.graph_builder import annotate_with_risk, build_graph
+from graph.routing import suggest_alternate
 from graph.simulation import cascade_failure, risk_impact
 from services.graph_service import all_nodes
 
@@ -53,6 +55,8 @@ if "sim_failed" not in st.session_state:
     st.session_state.sim_failed = None
 if "sim_extra_load" not in st.session_state:
     st.session_state.sim_extra_load = None
+if "sim_alternates" not in st.session_state:
+    st.session_state.sim_alternates = None
 
 # ── controls ──────────────────────────────────────────────────────────────────
 col_sel, col_load = st.columns([2, 1])
@@ -72,11 +76,12 @@ run = col_run.button("Run Simulation", type="primary", use_container_width=True)
 clear = col_clear.button("Clear", use_container_width=True)
 
 if clear:
-    st.session_state.sim_result = None
-    st.session_state.sim_impact = None
-    st.session_state.sim_G_post = None
-    st.session_state.sim_failed = None
+    st.session_state.sim_result     = None
+    st.session_state.sim_impact     = None
+    st.session_state.sim_G_post     = None
+    st.session_state.sim_failed     = None
     st.session_state.sim_extra_load = None
+    st.session_state.sim_alternates = None
     st.rerun()
 
 # ── run simulation (only when button clicked) ─────────────────────────────────
@@ -99,12 +104,54 @@ if run:
             default_load=min(0.7 + extra_load, 1.0),
         )
 
+        # ── Dijkstra alternate routes for every affected pair ────────────────
+        alt_rows = []
+        seen_pairs = set()
+        for u, v in sorted(res["affected_routes"]):
+            if (u, v) in seen_pairs or u == failed or v == failed:
+                continue
+            seen_pairs.add((u, v))
+            # original direct edge distance (for extra-distance calc)
+            orig_dist = (G_annotated[u][v]["distance"]
+                         if G_annotated.has_edge(u, v) else None)
+            orig_risk = (G_annotated[u][v]["risk"]
+                         if G_annotated.has_edge(u, v) else None)
+            alt = suggest_alternate(G_post, u, v, avoid_node=failed)
+            if alt.get("path") and len(alt["path"]) >= 2:
+                via = " → ".join(alt["path"])
+                extra_d = (round(alt["total_distance_km"] - orig_dist, 1)
+                           if orig_dist else "—")
+                risk_change = (round(alt["total_risk"] - orig_risk, 3)
+                               if orig_risk is not None else "—")
+                alt_rows.append({
+                    "Affected Route":   f"{u} → {v}",
+                    "Alternate Path":   via,
+                    "Hops":             alt["hops"],
+                    "Alt Risk":         alt["total_risk"],
+                    "Orig Risk":        round(orig_risk, 3) if orig_risk else "—",
+                    "Risk Δ":           risk_change,
+                    "Alt Distance (km)": alt["total_distance_km"],
+                    "Extra km":         extra_d,
+                })
+            else:
+                alt_rows.append({
+                    "Affected Route":   f"{u} → {v}",
+                    "Alternate Path":   "⚠ No path found",
+                    "Hops":             "—",
+                    "Alt Risk":         "—",
+                    "Orig Risk":        round(orig_risk, 3) if orig_risk else "—",
+                    "Risk Δ":           "—",
+                    "Alt Distance (km)": "—",
+                    "Extra km":         "—",
+                })
+
         # persist to session state
-        st.session_state.sim_result = res
-        st.session_state.sim_impact = impact_rows
-        st.session_state.sim_G_post = G_post
-        st.session_state.sim_failed = failed
+        st.session_state.sim_result     = res
+        st.session_state.sim_impact     = impact_rows
+        st.session_state.sim_G_post     = G_post
+        st.session_state.sim_failed     = failed
         st.session_state.sim_extra_load = extra_load
+        st.session_state.sim_alternates = alt_rows
 
 # ── display results (from session state) ──────────────────────────────────────
 if st.session_state.sim_result is None:
@@ -112,11 +159,12 @@ if st.session_state.sim_result is None:
     st.stop()
 
 # pull from session state (survive any subsequent widget interaction)
-res = st.session_state.sim_result
-impact_rows = st.session_state.sim_impact
-G_post = st.session_state.sim_G_post
-sim_failed = st.session_state.sim_failed
+res          = st.session_state.sim_result
+impact_rows  = st.session_state.sim_impact
+G_post       = st.session_state.sim_G_post
+sim_failed   = st.session_state.sim_failed
 sim_extra_load = st.session_state.sim_extra_load
+alt_rows     = st.session_state.sim_alternates or []
 
 st.divider()
 st.caption(f"Showing results for: **{sim_failed}** failure  |  extra load: **{sim_extra_load:.0%}**")
@@ -192,6 +240,77 @@ if impact_rows:
     )
     fig.update_layout(xaxis_tickangle=-45)
     st.plotly_chart(fig, use_container_width=True)
+
+# ── Dijkstra alternate routes ─────────────────────────────────────────────────
+st.divider()
+st.subheader("🔀 Recommended Alternate Routes (Dijkstra)")
+st.caption(
+    f"For every route that passed through **{sim_failed}**, "
+    "Dijkstra's algorithm finds the minimum-risk path on the surviving network. "
+    "Risk weight = ML-predicted delay probability on each edge."
+)
+
+if alt_rows:
+    found  = [r for r in alt_rows if r["Alternate Path"] != "⚠ No path found"]
+    broken = [r for r in alt_rows if r["Alternate Path"] == "⚠ No path found"]
+
+    components.html(f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap');
+*{{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}}
+.row{{display:flex;gap:10px;margin-bottom:10px}}
+.badge{{background:#0c2340;border:1px solid #1d6fa4;color:#60a5fa;
+        font-size:.75rem;font-weight:600;padding:5px 14px;border-radius:99px}}
+.badge2{{background:#7c2d12;border:1px solid #9a3412;color:#fca5a5;
+         font-size:.75rem;font-weight:600;padding:5px 14px;border-radius:99px}}
+</style>
+<div class="row">
+  <span class="badge">✓ {len(found)} alternate paths found</span>
+  <span class="badge2">✗ {len(broken)} routes unreachable</span>
+</div>
+""", height=44)
+
+    if found:
+        df_alt = pd.DataFrame(found)
+
+        def _color_alt_risk(col):
+            out = []
+            for v in col:
+                if isinstance(v, float):
+                    out.append("color:#ef4444;font-weight:700" if v >= 0.66
+                               else "color:#f97316;font-weight:700" if v >= 0.33
+                               else "color:#22c55e;font-weight:600")
+                else:
+                    out.append("")
+            return out
+
+        def _color_delta(col):
+            out = []
+            for v in col:
+                if isinstance(v, float):
+                    out.append("color:#ef4444;font-weight:700" if v > 0.05
+                               else "color:#f97316" if v > 0
+                               else "color:#22c55e")
+                else:
+                    out.append("color:#9ca3af")
+            return out
+
+        styled_alt = (
+            df_alt.style
+            .apply(_color_alt_risk, subset=["Alt Risk"])
+            .apply(_color_delta,    subset=["Risk Δ"])
+            .format({"Alt Risk": lambda x: f"{x:.1%}" if isinstance(x, float) else x,
+                     "Orig Risk": lambda x: f"{x:.1%}" if isinstance(x, float) else x,
+                     "Risk Δ": lambda x: f"{x:+.1%}" if isinstance(x, float) else x})
+        )
+        st.dataframe(styled_alt, use_container_width=True, hide_index=True, height=360)
+
+    if broken:
+        with st.expander(f"⚠ {len(broken)} routes with no alternate path"):
+            for r in broken:
+                st.write(f"  {r['Affected Route']} — completely isolated after failure")
+else:
+    st.info("No affected routes to reroute.")
 
 # ── post-failure map ──────────────────────────────────────────────────────────
 st.divider()
