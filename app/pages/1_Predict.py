@@ -17,7 +17,9 @@ from services.routing_service import best_route
 from services.weather_service import get_weather
 from services.traffic_service import get_traffic
 
-st.set_page_config(page_title="Predict", page_icon="🔮", layout="wide")
+st.set_page_config(page_title="Predict · SupplyGuard", page_icon="🔮", layout="wide")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from styles import inject; inject()
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"]{background:#0d1117!important}

@@ -12,6 +12,9 @@ from streamlit_folium import st_folium
 import pandas as pd
 
 from graph.graph_builder import build_graph, annotate_with_risk
+import sys as _sys; _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from styles import inject
+inject()
 from services.flight_service import get_cargo_flights
 from services.vessel_service import get_vessels_near_india
 

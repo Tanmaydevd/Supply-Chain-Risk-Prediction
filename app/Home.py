@@ -13,6 +13,9 @@ import streamlit.components.v1 as components
 from streamlit_folium import st_folium
 
 from services.graph_service import get_annotated_graph, overview_metrics
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent))
+from styles import inject
+inject()
 from services.weather_service import get_weather
 
 st.set_page_config(page_title="SupplyGuard", page_icon="🛡️", layout="wide",

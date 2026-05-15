@@ -17,6 +17,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from streamlit_folium import st_folium
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from styles import inject; inject()
 
 from graph.graph_builder import annotate_with_risk, build_graph
 from graph.simulation import cascade_failure, risk_impact
