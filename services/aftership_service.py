@@ -48,14 +48,42 @@ _STATUS_TO_RISK = {
 }
 
 
-def get_all_trackings(limit: int = 50) -> list[dict]:
-    """Fetch all trackings from your AfterShip account.
+import json as _json
+from pathlib import Path as _Path
+import time as _time
 
-    Returns list of normalised shipment dicts compatible with our
-    /api/shipments schema.
-    """
+_CACHE_FILE = _Path(__file__).resolve().parent.parent / "data" / "processed" / "aftership_cache.json"
+_CACHE_TTL  = 600  # seconds
+
+
+def _read_cache() -> list[dict] | None:
+    try:
+        if _CACHE_FILE.exists():
+            blob = _json.loads(_CACHE_FILE.read_text())
+            if _time.time() - blob.get("ts", 0) < _CACHE_TTL:
+                return blob["data"]
+    except Exception:
+        pass
+    return None
+
+
+def _write_cache(data: list[dict]):
+    try:
+        _CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        _CACHE_FILE.write_text(_json.dumps({"ts": _time.time(), "data": data}))
+    except Exception:
+        pass
+
+
+def get_all_trackings(limit: int = 50) -> list[dict]:
+    """Fetch all trackings — uses file cache to survive Streamlit restarts."""
+    # 1. Return file cache if fresh (avoids hitting rate limit on restart)
+    cached = _read_cache()
+    if cached is not None:
+        return cached
+
     if not AFTERSHIP_KEY:
-        return _demo_trackings()
+        return []
 
     import time
     for attempt in range(3):
@@ -63,8 +91,10 @@ def get_all_trackings(limit: int = 50) -> list[dict]:
             resp = requests.get(
                 f"{_BASE}/trackings",
                 headers=_HEADERS,
-                params={"limit": limit, "fields": "tracking_number,slug,tag,title,origin_country_iso3,"
-                        "destination_country_iso3,estimated_delivery,last_updated_at"},
+                params={"limit": limit, "fields": "tracking_number,slug,tag,title,"
+                        "origin_country_iso3,destination_country_iso3,"
+                        "origin_city,origin_state,destination_city,destination_state,"
+                        "estimated_delivery,last_updated_at,last_checkpoint"},
                 timeout=8,
             )
             if resp.status_code == 429:
@@ -72,8 +102,10 @@ def get_all_trackings(limit: int = 50) -> list[dict]:
                 continue
             resp.raise_for_status()
             body = resp.json()
-            raw = (body.get("data") or {}).get("trackings") or body.get("trackings", [])
-            return [_normalise(t) for t in raw]
+            raw    = (body.get("data") or {}).get("trackings") or body.get("trackings", [])
+            result = [_normalise(t) for t in raw]
+            _write_cache(result)  # persist so restarts don't burn quota
+            return result
         except Exception as exc:
             print(f"[aftership] fetch failed ({exc})")
             return []
@@ -105,17 +137,43 @@ def get_tracking(slug: str, tracking_number: str) -> dict:
 def _normalise(t: dict) -> dict:
     tag  = t.get("tag", "InTransit")
     risk = _STATUS_TO_RISK.get(tag, 0.4)
+
+    # Build city, state strings — fall back to country code if missing
+    def _loc(city_key, state_key, country_key):
+        city    = t.get(city_key, "") or ""
+        state   = t.get(state_key, "") or ""
+        country = t.get(country_key, "IND") or "IND"
+        if city and state:   return f"{city}, {state}"
+        if city:             return f"{city}, {country}"
+        if state:            return f"{state}, {country}"
+        return country
+
+    # Last checkpoint — shows current location + event message
+    cp      = t.get("last_checkpoint") or {}
+    cp_loc  = cp.get("location") or cp.get("city") or ""
+    cp_msg  = cp.get("message") or cp.get("tag_description") or ""
+    cp_time = (cp.get("checkpoint_time") or "")[:16]
+
+    # ETA formatting
+    eta_raw = t.get("estimated_delivery") or ""
+    eta     = eta_raw[:10] if eta_raw else "—"
+
+    # Last updated formatting
+    upd_raw = t.get("last_updated_at") or ""
+    updated = upd_raw[:16].replace("T", " ") if upd_raw else "—"
+
     return {
-        "id":          t.get("tracking_number", "N/A"),
-        "carrier":     t.get("slug", "Unknown").upper(),
-        "status":      tag,
-        "risk":        risk,
-        "source":      t.get("origin_country_iso3", "IND"),
-        "destination": t.get("destination_country_iso3", "IND"),
-        "eta":         t.get("estimated_delivery", ""),
-        "title":       t.get("title", ""),
-        "last_updated": t.get("last_updated_at", ""),
-        "data_source": "AfterShip Live",
+        "id":           t.get("tracking_number", "N/A"),
+        "carrier":      t.get("slug", "Unknown").upper(),
+        "status":       tag,
+        "risk":         risk,
+        "source":       _loc("origin_city", "origin_state", "origin_country_iso3"),
+        "destination":  _loc("destination_city", "destination_state", "destination_country_iso3"),
+        "eta":          eta,
+        "last_updated": updated,
+        "checkpoint":   f"{cp_loc} — {cp_msg} ({cp_time})" if cp_loc else cp_msg,
+        "title":        t.get("title", ""),
+        "data_source":  "AfterShip Live",
     }
 
 

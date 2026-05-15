@@ -49,7 +49,6 @@ html,body,[data-testid="stAppViewContainer"],[data-testid="stMain"],.main{
 
 /* ── DataFrames ───────────────────────────────────────────────────────── */
 [data-testid="stDataFrame"]{border:1px solid #1f2937!important;border-radius:10px!important;}
-.dvn-scroller,.glideDataEditor{background:#0d1117!important;}
 
 /* ── Buttons ──────────────────────────────────────────────────────────── */
 [data-testid="stButton"]>button{
@@ -87,6 +86,12 @@ hr{border-color:#1f2937!important;margin:.8rem 0!important;}
 
 /* ── Toggle ──────────────────────────────────────────────────────────── */
 [data-testid="stToggle"] span{font-size:.82rem!important;color:#9ca3af!important;}
+
+/* ── Hide Streamlit chrome ─────────────────────────────────────────────── */
+[data-testid="stToolbar"]{display:none!important;}
+[data-testid="stDecoration"]{display:none!important;}
+#MainMenu{display:none!important;}
+footer{display:none!important;}
 
 /* ── Section header helper ────────────────────────────────────────────── */
 .sec-hdr{font-size:.68rem;font-weight:700;color:#6b7280;

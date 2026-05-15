@@ -366,15 +366,15 @@ if _raw:
     for t in _raw:
         risk_pct = int(t["risk"] * 100)
         rows.append({
-            "Tracking #":   t["id"],
-            "Carrier":      t["carrier"],
-            "Status":       _status_icon(t["status"]),
-            "Source":       t.get("source", "India"),
-            "Destination":  t.get("destination", "India"),
-            "Delay Risk":   f"{risk_pct}%",
-            "ETA":          t.get("eta", "—")[:10] if t.get("eta") else "—",
-            "Last Updated": t.get("last_updated", "—")[:16] if t.get("last_updated") else "—",
-            "Data":         t.get("data_source", "AfterShip"),
+            "Tracking #":      t["id"],
+            "Carrier":         t["carrier"],
+            "Status":          _status_icon(t["status"]),
+            "Source":          t.get("source", "India"),
+            "Destination":     t.get("destination", "India"),
+            "Delay Risk":      f"{risk_pct}%",
+            "ETA":             t.get("eta", "—"),
+            "Last Updated":    t.get("last_updated", "—"),
+            "Latest Checkpoint": t.get("checkpoint", "—"),
         })
 
     df = pd.DataFrame(rows)
@@ -394,7 +394,9 @@ if _raw:
                        else "color:#86efac")
         return out
 
-    styled = df.style.apply(_style_status, subset=["Status"]).apply(_style_risk, subset=["Delay Risk"])
+    styled = (df.style
+               .apply(_style_status, subset=["Status"])
+               .apply(_style_risk,   subset=["Delay Risk"]))
     st.dataframe(styled, use_container_width=True, hide_index=True, height=380)
 
     st.caption(f"Live data from AfterShip · {len(_raw)} shipment(s) · refreshes every 2 min")
