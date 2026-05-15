@@ -365,59 +365,68 @@ circle{{fill:none;stroke-width:14;stroke-linecap:round}}
         )
         st.caption(f"Final prediction = average across {alt['hops']} hops  ·  Dijkstra shortest path by risk weight")
 
-        # ── Suggest better alternate if this path is still high risk ─────────
+        # ── Suggest alternate if risk >= 60% ─────────────────────────────────
         if avg_prob >= 0.60:
-            # Find the highest-risk hop and avoid its intermediate node
-            worst_hop  = max(hop_results, key=lambda h: h["prob"])
-            worst_nodes = worst_hop["hop"].split(" → ")
-            avoid_node  = worst_nodes[1] if len(worst_nodes) > 1 else None
+            from graph.routing import suggest_alternate
+            from services.graph_service import get_annotated_graph as _gag
+            _G = _gag()
 
-            from services.routing_service import alternate_avoiding
-            if avoid_node and avoid_node != origin and avoid_node != destination:
-                better = alternate_avoiding(origin, destination, avoid_node)
-            else:
+            # Try 1: avoid the highest-risk intermediate node
+            worst_hop   = max(hop_results, key=lambda h: h["prob"])
+            mid_nodes   = worst_hop["hop"].split(" → ")
+            avoid_node  = mid_nodes[1] if len(mid_nodes) > 1 else None
+            better      = {"path": None}
+            if avoid_node and avoid_node not in (origin, destination):
+                better = suggest_alternate(_G, origin, destination,
+                                           avoid_node=avoid_node, weight="risk")
+
+            # Try 2: shortest-distance path (different optimisation axis)
+            if not better.get("path") or better["path"] == path:
+                better = suggest_alternate(_G, origin, destination, weight="distance")
+
+            # Try 3: any path different from current
+            if not better.get("path") or better["path"] == path:
                 better = {"path": None}
 
-            # fallback: try Dijkstra by distance instead of risk
-            if not better.get("path"):
-                from graph.routing import suggest_alternate
-                from services.graph_service import get_annotated_graph as _gag
-                better = suggest_alternate(_gag(), origin, destination, weight="distance")
-
-            if better.get("path") and better["path"] != alt["path"]:
-                better_path_str = " → ".join(better["path"])
+            if better.get("path"):
+                bp   = " → ".join(better["path"])
+                tag  = ("Lower network risk" if better["total_risk"] < alt["total_risk"]
+                        else "Shorter distance alternate")
                 components.html(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap');
 *{{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}}
-.box{{background:#0f3326;border:1px solid #166534;border-radius:12px;padding:14px 18px;margin-top:4px}}
-.top{{display:flex;align-items:center;gap:8px;margin-bottom:10px}}
+.box{{background:#0f3326;border:1px solid #166534;border-radius:12px;
+      padding:14px 18px;margin-top:6px}}
+.top{{display:flex;align-items:center;gap:8px;margin-bottom:8px}}
 .ttl{{font-size:.9rem;font-weight:700;color:#4ade80}}
-.warn{{font-size:.78rem;color:#f97316;margin-bottom:6px}}
-.path{{font-size:.95rem;color:#f9fafb;font-weight:600;word-break:break-word;margin-bottom:10px}}
+.sub{{font-size:.76rem;color:#f97316;margin-bottom:8px}}
+.path{{font-size:.92rem;color:#f9fafb;font-weight:600;
+       word-break:break-word;margin-bottom:10px;line-height:1.5}}
 .chips{{display:flex;gap:8px;flex-wrap:wrap}}
 .chip{{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:99px;
        background:#14532d;border:1px solid #166534;color:#86efac}}
 .chip2{{background:#1c1007;border:1px solid #92400e;color:#fbbf24}}
 </style>
 <div class="box">
-  <div class="top"><span>🔀</span>
-    <span class="ttl">Recommended Lower-Risk Alternate Route</span>
+  <div class="top">
+    <span style="font-size:1.1rem">🔀</span>
+    <span class="ttl">Recommended Alternate Route — {tag}</span>
   </div>
-  <div class="warn">⚠ Current path risk {avg_prob:.0%} exceeds 60% — try this route instead:</div>
-  <div class="path">{better_path_str}</div>
+  <div class="sub">⚠ Current path delay risk {avg_prob:.0%} ≥ 60% — suggested bypass:</div>
+  <div class="path">{bp}</div>
   <div class="chips">
     <span class="chip">✓ {better['hops']} hops</span>
     <span class="chip">📏 {better['total_distance_km']} km</span>
     <span class="chip">⚡ Network risk {better['total_risk']}</span>
-    <span class="chip2">Current path risk {avg_prob:.0%}</span>
+    <span class="chip2">Current: {avg_prob:.0%} delay prob</span>
   </div>
 </div>
 """, height=148)
             else:
-                st.warning(f"Path risk {avg_prob:.0%} — no lower-risk alternate found in network. Consider delaying shipment or splitting load.")
+                st.warning(f"Delay probability {avg_prob:.0%} is high — no structurally different alternate path found. Consider adjusting departure timing.")
         else:
-            st.success(f"Risk is acceptable on this route ({avg_prob:.0%} delay probability).")
+            st.success(f"Risk is acceptable ({avg_prob:.0%} delay probability).")
     else:
         e = direct.iloc[0]
         edge_mode = int(e.get("transport_mode", 0)) if "transport_mode" in e.index else mode_int
