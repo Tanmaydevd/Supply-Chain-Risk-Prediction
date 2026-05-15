@@ -104,46 +104,63 @@ if run:
             default_load=min(0.7 + extra_load, 1.0),
         )
 
-        # ── Dijkstra alternate routes for every affected pair ────────────────
+        # ── Dijkstra alternate routes ─────────────────────────────────────────
+        # For each predecessor→successor pair that originally routed THROUGH
+        # the failed node, find the best alternate on the surviving graph.
+        predecessors = list(G_annotated.predecessors(failed))
+        successors   = list(G_annotated.successors(failed))
+
         alt_rows = []
         seen_pairs = set()
-        for u, v in sorted(res["affected_routes"]):
-            if (u, v) in seen_pairs or u == failed or v == failed:
-                continue
-            seen_pairs.add((u, v))
-            # original direct edge distance (for extra-distance calc)
-            orig_dist = (G_annotated[u][v]["distance"]
-                         if G_annotated.has_edge(u, v) else None)
-            orig_risk = (G_annotated[u][v]["risk"]
-                         if G_annotated.has_edge(u, v) else None)
-            alt = suggest_alternate(G_post, u, v, avoid_node=failed)
-            if alt.get("path") and len(alt["path"]) >= 2:
-                via = " → ".join(alt["path"])
-                extra_d = (round(alt["total_distance_km"] - orig_dist, 1)
-                           if orig_dist else "—")
-                risk_change = (round(alt["total_risk"] - orig_risk, 3)
-                               if orig_risk is not None else "—")
-                alt_rows.append({
-                    "Affected Route":   f"{u} → {v}",
-                    "Alternate Path":   via,
-                    "Hops":             alt["hops"],
-                    "Alt Risk":         alt["total_risk"],
-                    "Orig Risk":        round(orig_risk, 3) if orig_risk else "—",
-                    "Risk Δ":           risk_change,
-                    "Alt Distance (km)": alt["total_distance_km"],
-                    "Extra km":         extra_d,
-                })
-            else:
-                alt_rows.append({
-                    "Affected Route":   f"{u} → {v}",
-                    "Alternate Path":   "⚠ No path found",
-                    "Hops":             "—",
-                    "Alt Risk":         "—",
-                    "Orig Risk":        round(orig_risk, 3) if orig_risk else "—",
-                    "Risk Δ":           "—",
-                    "Alt Distance (km)": "—",
-                    "Extra km":         "—",
-                })
+
+        for u in predecessors:
+            for v in successors:
+                if u == v or (u, v) in seen_pairs:
+                    continue
+                if u == failed or v == failed:
+                    continue
+                seen_pairs.add((u, v))
+
+                # original 2-hop cost: u→failed + failed→v
+                orig_risk = None
+                orig_dist = None
+                if G_annotated.has_edge(u, failed) and G_annotated.has_edge(failed, v):
+                    orig_risk = round(
+                        G_annotated[u][failed]["risk"] + G_annotated[failed][v]["risk"], 3
+                    )
+                    orig_dist = round(
+                        G_annotated[u][failed]["distance"] + G_annotated[failed][v]["distance"], 1
+                    )
+
+                alt = suggest_alternate(G_post, u, v, avoid_node=failed)
+
+                if alt.get("path") and len(alt["path"]) >= 2:
+                    via      = " → ".join(alt["path"])
+                    extra_d  = (round(alt["total_distance_km"] - orig_dist, 1)
+                                if orig_dist else "—")
+                    risk_chg = (round(alt["total_risk"] - orig_risk, 3)
+                                if orig_risk is not None else "—")
+                    alt_rows.append({
+                        "Disrupted Route":   f"{u} → {failed} → {v}",
+                        "Alternate Path":    via,
+                        "Hops":              alt["hops"],
+                        "Alt Risk":          alt["total_risk"],
+                        "Orig Risk":         orig_risk if orig_risk else "—",
+                        "Risk Δ":            risk_chg,
+                        "Alt Dist (km)":     alt["total_distance_km"],
+                        "Extra km":          extra_d,
+                    })
+                else:
+                    alt_rows.append({
+                        "Disrupted Route":   f"{u} → {failed} → {v}",
+                        "Alternate Path":    "⚠ No path found",
+                        "Hops":              "—",
+                        "Alt Risk":          "—",
+                        "Orig Risk":         orig_risk if orig_risk else "—",
+                        "Risk Δ":            "—",
+                        "Alt Dist (km)":     "—",
+                        "Extra km":          "—",
+                    })
 
         # persist to session state
         st.session_state.sim_result     = res
@@ -299,16 +316,18 @@ if alt_rows:
             df_alt.style
             .apply(_color_alt_risk, subset=["Alt Risk"])
             .apply(_color_delta,    subset=["Risk Δ"])
-            .format({"Alt Risk": lambda x: f"{x:.1%}" if isinstance(x, float) else x,
-                     "Orig Risk": lambda x: f"{x:.1%}" if isinstance(x, float) else x,
-                     "Risk Δ": lambda x: f"{x:+.1%}" if isinstance(x, float) else x})
+            .format({
+                "Alt Risk":  lambda x: f"{x:.1%}" if isinstance(x, float) else x,
+                "Orig Risk": lambda x: f"{x:.1%}" if isinstance(x, float) else x,
+                "Risk Δ":    lambda x: f"{x:+.1%}" if isinstance(x, float) else x,
+            })
         )
         st.dataframe(styled_alt, use_container_width=True, hide_index=True, height=360)
 
     if broken:
         with st.expander(f"⚠ {len(broken)} routes with no alternate path"):
             for r in broken:
-                st.write(f"  {r['Affected Route']} — completely isolated after failure")
+                st.write(f"  {r['Disrupted Route']} — completely isolated after failure")
 else:
     st.info("No affected routes to reroute.")
 
