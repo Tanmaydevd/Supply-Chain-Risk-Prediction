@@ -443,22 +443,44 @@ circle{{fill:none;stroke-width:14;stroke-linecap:round}}
             + ("  ·  " + " | ".join(data_src) if data_src else "")
         )
 
-        if r["risk_level"] == "High":
-            st.warning("High risk detected — searching for a safer alternate route...")
+        if r["delay_probability"] >= 0.60:
+            st.warning(f"Delay probability {r['delay_probability']:.0%} exceeds 60% — searching for a safer alternate route...")
             alt = best_route(origin, destination)
             if alt.get("path") and len(alt["path"]) > 2:
-                st.success(
-                    f"**Suggested alternate:** {' -> '.join(alt['path'])}  \n"
-                    f"Total network risk: {alt['total_risk']}  ·  "
-                    f"Distance: {alt['total_distance_km']} km  ·  "
-                    f"{alt['hops']} hops"
-                )
+                alt_path_str = " → ".join(alt["path"])
+                risk_saved   = round(r["delay_probability"] - (alt["total_risk"] / max(alt["hops"],1)), 3)
+                components.html(f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap');
+*{{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}}
+.box{{background:#0f3326;border:1px solid #166534;border-radius:12px;padding:14px 18px}}
+.top{{display:flex;align-items:center;gap:8px;margin-bottom:10px}}
+.icon{{font-size:1.1rem}}.ttl{{font-size:.9rem;font-weight:700;color:#4ade80}}
+.path{{font-size:.95rem;color:#f9fafb;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;
+       word-break:break-word}}
+.chips{{display:flex;gap:8px;flex-wrap:wrap}}
+.chip{{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:99px;
+       background:#14532d;border:1px solid #166534;color:#86efac}}
+.chip2{{background:#1c1007;border:1px solid #92400e;color:#fbbf24}}
+</style>
+<div class="box">
+  <div class="top"><span class="icon">🔀</span>
+    <span class="ttl">Recommended Alternate Route (Dijkstra)</span></div>
+  <div class="path">{alt_path_str}</div>
+  <div class="chips">
+    <span class="chip">✓ {alt['hops']} hops</span>
+    <span class="chip">📏 {alt['total_distance_km']} km</span>
+    <span class="chip">⚡ Risk {alt['total_risk']:.3f}</span>
+    <span class="chip2">Direct risk {r['delay_probability']:.0%}</span>
+  </div>
+</div>
+""", height=130)
             elif alt.get("path"):
-                st.info("Direct path is already the lowest-risk option. Consider adjusting departure window.")
+                st.info("Direct path is already the lowest-risk option in the network. Consider adjusting departure window.")
             else:
-                st.error("No alternate path found.")
+                st.error("No alternate path found in the network.")
         else:
-            st.success("Risk is acceptable on the direct route.")
+            st.success(f"Risk is acceptable on the direct route ({r['delay_probability']:.0%} delay probability).")
 
 # ── TomTom key setup hint (shown once, only when key not set) ─────────────────
 if not TOMTOM_API_KEY:
