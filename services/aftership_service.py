@@ -19,10 +19,18 @@ from __future__ import annotations
 import os
 import requests
 
+try:
+    from dotenv import load_dotenv
+    from pathlib import Path
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
+
 AFTERSHIP_KEY = os.environ.get("AFTERSHIP_API_KEY", "")
-_BASE = "https://api.aftership.com/v4"
+# asat_ keys use the newer AfterShip API (2024-07) with as-api-key header
+_BASE    = "https://api.aftership.com/tracking/2024-07"
 _HEADERS = {
-    "aftership-api-key": AFTERSHIP_KEY,
+    "as-api-key":   AFTERSHIP_KEY,
     "Content-Type": "application/json",
 }
 
@@ -58,11 +66,13 @@ def get_all_trackings(limit: int = 50) -> list[dict]:
             timeout=8,
         )
         resp.raise_for_status()
-        raw = resp.json()["data"]["trackings"]
+        body = resp.json()
+        # new API: { data: { trackings: [...] } } or { trackings: [...] }
+        raw = (body.get("data") or {}).get("trackings") or body.get("trackings", [])
         return [_normalise(t) for t in raw]
     except Exception as exc:
-        print(f"[aftership] fetch failed ({exc}) — returning demo data")
-        return _demo_trackings()
+        print(f"[aftership] fetch failed ({exc})")
+        return []
 
 
 def add_tracking(tracking_number: str, slug: str, title: str = "") -> dict:

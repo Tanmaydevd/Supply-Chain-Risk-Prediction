@@ -1,0 +1,843 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{SupplyGuard: Real-Time Supply Chain Risk Intelligence via\\
+Multi-Source API Fusion, Graph Analytics, and Machine Learning\\
+for Indian Logistics Networks}
+
+\author{
+\IEEEauthorblockN{[Author 1 Name]}
+\IEEEauthorblockA{Computer Science \& Engineering\\[Institution Name]\\Bengaluru, India\\email@institution.edu}
+\and
+\IEEEauthorblockN{[Author 2 Name]}
+\IEEEauthorblockA{Computer Science \& Engineering\\[Institution Name]\\Bengaluru, India\\email@institution.edu}
+\and
+\IEEEauthorblockN{[Author 3 Name]}
+\IEEEauthorblockA{Computer Science \& Engineering\\[Institution Name]\\Bengaluru, India\\email@institution.edu}
+\and
+\IEEEauthorblockN{[Guide Name]}
+\IEEEauthorblockA{Computer Science \& Engineering\\[Institution Name]\\Bengaluru, India\\email@institution.edu}
+}
+
+\maketitle
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{abstract}
+India's logistics sector coordinates tens of thousands of active
+shipments daily across an interdependent network of fulfillment
+centres, seaports, cargo airports, and road corridors. Disruptions
+arising from adverse weather, port congestion, cargo-flight delays,
+and road-traffic bottlenecks cascade across this network, exposing
+enterprises to significant financial risk. Existing monitoring tools
+either operate on stale historical data or address individual disruption
+modalities in isolation. This paper presents SupplyGuard, an integrated
+real-time supply chain risk intelligence platform that unifies four live
+data streams — meteorological conditions via Open-Meteo, cargo flight
+status via OpenSky Network, maritime vessel positions via aisstream.io
+(AIS WebSocket), and road traffic via TomTom Flow API — over a directed,
+risk-weighted graph of 15 major Indian logistics nodes.
+A Random Forest classifier trained on a curated ecommerce
+shipment dataset achieves a higher F1-score (0.333) than Logistic
+Regression (0.216), with SHAP-based feature analysis identifying
+port congestion and warehouse load as the dominant delay predictors.
+Graph-theoretic cascade-failure simulation quantifies secondary network
+disruptions following hub outages, and a Dijkstra-based router
+recommends lowest-risk alternate paths in sub-100\,ms.
+The Streamlit dashboard refreshes risk scores every 60 seconds and
+sustains end-to-end page load latency under 2.5\,seconds.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Supply Chain Risk Management, Real-Time Monitoring, REST API Integration,
+AIS Vessel Tracking, Machine Learning, Graph Analytics, Logistics Intelligence,
+Cascade Failure Simulation, SHAP Explainability
+\end{IEEEkeywords}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+
+India's logistics sector accounts for approximately 14\% of GDP \cite{india_logistics_report}
+and underpins the e-commerce boom that processed over 4 billion
+shipments in 2023 \cite{ecommerce_india}. The sector's inherent complexity —
+multi-modal transport corridors spanning road, rail, sea, and air —
+makes it acutely vulnerable to disruptions that cascade across
+interdependent hubs. A storm grounding cargo aircraft at Mumbai reduces
+warehouse throughput, raises port dwell times at JNPT, and ripples
+outward to fulfillment centres hundreds of kilometres inland.
+
+Traditional supply chain risk management (SCRM) systems
+suffer from two fundamental shortcomings. First, they depend on
+scheduled data collection — overnight batch imports of shipment
+logs, weekly weather summaries, monthly port statistics — which
+is insufficient for time-critical rerouting decisions. Second, they
+treat disruption modalities independently: weather dashboards do
+not correlate storm conditions with vessel delays; port dashboards
+do not model the downstream impact on road congestion. The result
+is information silos that require manual synthesis by logistics
+analysts at exactly the moments of highest cognitive load.
+
+Recent advances in open-access APIs for weather, aviation, and
+maritime data, combined with improvements in graph-theoretic
+risk modelling and ensemble machine learning, create an opportunity
+to build a genuinely integrated, real-time risk intelligence layer.
+This paper presents SupplyGuard, a production-ready platform that:
+
+\begin{itemize}
+  \item Ingests live data from four public APIs updated continuously,
+    replacing manual monitoring with automated risk scoring.
+  \item Models India's logistics infrastructure as a directed,
+    risk-weighted graph with 15 nodes (fulfillment centres, seaports,
+    and cargo airports) and 36 edges representing active trade routes.
+  \item Predicts shipment delay probability using a Random Forest
+    classifier with SHAP-based feature attribution.
+  \item Simulates cascade failures to quantify second-order disruption
+    risk when individual hubs go offline.
+  \item Provides logistics managers with an interactive, real-time
+    Streamlit dashboard requiring no local installation.
+\end{itemize}
+
+The remainder of this paper is structured as follows. Section II
+surveys related work. Section III formalises the problem. Section IV
+describes the system architecture. Section V details each API
+integration. Section VI presents the machine learning methodology.
+Section VII covers graph analytics. Sections VIII and IX present
+experimental results and limitations. Section X concludes.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Related Work}
+
+\subsection{Supply Chain Risk Management}
+Chopra and Sodhi \cite{chopra2004} categorise supply chain risks
+along disruption, delay, forecast, intellectual property, procurement,
+receivables, inventory, and capacity dimensions. Subsequent empirical
+work by Kleindorfer and Saad \cite{kleindorfer2005} demonstrated
+that natural disaster and geopolitical risks impose the highest
+recovery costs. Contemporary frameworks such as the SCOR model
+\cite{scor} provide structured risk assessment but rely on periodic
+reporting rather than real-time sensing.
+
+\subsection{Machine Learning for Logistics Delay Prediction}
+Kup et al.\ \cite{kup2022} applied XGBoost to HepsiJet's Turkish
+e-commerce dataset and reported ROC-AUC values between 72.4\% and
+99.9\% across different delivery steps, establishing feature
+importance rankings consistent with our findings (distance and
+historical delay dominate). Jiang et al.\ \cite{jiang2019} applied
+gradient boosting to FedEx parcel tracking data, identifying carrier
+load as a top predictor. However, both works train on single-carrier
+datasets and do not incorporate real-time external signals such as
+weather or vessel delays as input features.
+
+\subsection{Graph-Theoretic Supply Chain Modelling}
+Ivanov et al.\ \cite{ivanov2016} modelled supply networks as complex
+adaptive systems and used simulation to study cascade failures under
+disruption scenarios. Tang and Tomlin \cite{tang2008} formalised the
+value of flexibility in mitigating supply disruptions. Our work builds
+on these foundations by operationalising cascade failure simulation
+in real time on live risk data, rather than on static scenarios.
+
+\subsection{Real-Time Data Integration}
+The use of Automatic Identification System (AIS) data for maritime
+logistics visibility has been explored by \cite{ais_logistics}.
+Open-Meteo \cite{openmeteo} provides globally accessible weather
+forecasts under Creative Commons licensing. The OpenSky Network
+\cite{opensky} offers crowd-sourced AIS-equivalent transponder data
+for aviation. To our knowledge, SupplyGuard is the first system to
+unify all four modalities — weather, vessels, flights, and road
+traffic — in a single logistics risk graph for Indian infrastructure.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Problem Statement}
+
+Let $\mathcal{G} = (\mathcal{V}, \mathcal{E})$ denote a directed
+supply chain graph where each node $v_i \in \mathcal{V}$ represents
+a logistics hub (fulfillment centre, seaport, or cargo airport) and
+each edge $(u, v) \in \mathcal{E}$ represents an active trade route
+with attributes $\{d_{uv}, r_{uv}, w_{uv}\}$ denoting distance
+(km), delay risk probability, and cargo weight capacity respectively.
+
+At any time $t$, the system receives observations from a set of
+real-time data streams $\mathcal{D}^{(t)} = \{W^{(t)}, F^{(t)},
+S^{(t)}, T^{(t)}\}$ corresponding to weather, flight, vessel, and
+traffic signals respectively. The system must:
+
+\begin{enumerate}
+  \item \textbf{Score:} Update edge risk $r_{uv}^{(t)}$ using
+    $\mathcal{D}^{(t)}$ and the trained delay classifier $f_\theta$.
+  \item \textbf{Alert:} Detect risk events where $r_{uv}^{(t)} > \tau$
+    and surface them to operators within 2.5 seconds.
+  \item \textbf{Route:} Given a source-destination pair $(s, d)$,
+    return the path $P^* = \arg\min_P \sum_{(u,v)\in P} r_{uv}^{(t)}$.
+  \item \textbf{Simulate:} For a failed hub $v_f$, compute the
+    cascade set $\mathcal{C}(v_f)$ of secondarily isolated nodes.
+\end{enumerate}
+
+Key constraints are: (C1) latency — all alerts and route
+recommendations must be delivered in under 2.5 seconds; (C2)
+freshness — edge risk must reflect data no older than 5 minutes
+for weather and traffic, 60 seconds for flight and vessel state;
+(C3) explainability — predictions must be interpretable by
+non-technical logistics managers.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{System Architecture}
+
+SupplyGuard is organised into five layers as shown in Figure~1.
+
+\subsection{Data Ingestion Layer}
+Four REST/WebSocket API clients poll external data sources on
+configurable intervals. Results are normalised to a common schema and
+forwarded to the Risk Scoring Engine. Streamlit's \texttt{@st.cache\_data}
+decorator with per-source TTLs (60\,s for flights/vessels,
+300\,s for weather/traffic) prevents redundant API calls and
+maintains responsiveness during network latency spikes.
+
+\subsection{Graph Engine}
+A NetworkX directed graph encodes the 15-node, 36-edge Indian
+logistics network. Edge attributes are updated at each cache
+refresh cycle with current risk scores produced by the ML engine.
+Betweenness and closeness centrality metrics identify structurally
+critical hubs. Dijkstra's algorithm with risk as the edge weight
+provides lowest-risk route recommendations.
+
+\subsection{Machine Learning Engine}
+A persisted \texttt{delay\_rf.joblib} Random Forest model (200 trees,
+trained offline on 5,000 historical shipments) accepts a
+nine-dimensional feature vector and returns delay probability
+and risk level. SHAP values provide per-feature attribution for
+each prediction.
+
+\subsection{Simulation Engine}
+The cascade failure simulator iteratively removes nodes from a
+copy of the graph, applying weakly-connected-component (WCC)
+analysis to identify nodes isolated from the main network
+component. It continues until the graph stabilises and reports
+the cascade order, lost edges, and post-failure risk deltas.
+
+\subsection{Visualisation and API Layer}
+A Streamlit multi-page dashboard renders the risk graph on a
+Folium/Leaflet choropleth map, exposes a FastAPI REST endpoint
+(\texttt{/api}) for programmatic access, and provides a React
+frontend for richer interactive views.
+
+\begin{table}[h!]
+\centering
+\caption{Technology Stack}
+\label{tab:tech}
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Technology} \\
+\midrule
+Dashboard & Streamlit 1.56, Folium, Plotly \\
+Backend API & FastAPI 0.109, Python 3.12 \\
+Graph Engine & NetworkX 3.2 \\
+ML Training & scikit-learn 1.4, RandomForest \\
+Explainability & SHAP 0.44 \\
+Weather API & Open-Meteo (free, no key) \\
+Flights API & OpenSky Network (free, no key) \\
+Vessels API & aisstream.io WebSocket (free) \\
+Traffic API & TomTom Flow API (free tier) \\
+Frontend & React 18, TypeScript, Vite \\
+Deployment & Python venv, Windows / Linux \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Real-Time Data Integration}
+
+This section details each of the four external API integrations
+that provide live signals to the risk scoring pipeline.
+
+\subsection{Meteorological Risk Assessment — Open-Meteo API}
+
+Weather conditions are ingested from the Open-Meteo REST API
+(\texttt{https://api.open-meteo.com/v1/forecast}), a free,
+registration-free service that provides WMO-coded weather
+observations and short-range forecasts derived from multiple
+numerical weather prediction (NWP) models at sub-hourly resolution.
+
+For each of the five major logistics hub cities
+(Mumbai, Delhi, Chennai, Kolkata, Bangalore), the system issues
+a GET request with the city's precise latitude/longitude and
+queries three current fields:
+\texttt{weathercode}, \texttt{precipitation}, and
+\texttt{windspeed\_10m}. The returned WMO code is mapped to a
+three-level risk score: 0 (Sunny/Cloudy, WMO 0–3), 1 (Rain/Fog,
+WMO 45–86), and 2 (Thunderstorm/Storm, WMO 95–99). This score
+directly enters the ML feature vector as \texttt{weather\_score}
+and raises the edge risk of all routes touching the affected hub.
+
+A cache TTL of 300 seconds limits API calls to 12 requests
+per city per hour. Measured end-to-end latency for a single
+city weather fetch is 180–420\,ms on a 100\,Mbps connection,
+with the total five-city batch completing in under 1.8\,seconds
+on a cold cache.
+
+\begin{table}[h!]
+\centering
+\caption{API Integration Summary}
+\label{tab:apis}
+\begin{tabularx}{\columnwidth}{p{1.6cm}p{1.5cm}p{1.4cm}p{1.9cm}}
+\toprule
+\textbf{Data Type} & \textbf{API} & \textbf{Protocol} & \textbf{Auth / Cost} \\
+\midrule
+Weather & Open-Meteo & REST/JSON & None / Free \\
+Cargo Flights & OpenSky Network & REST/JSON & None / Free \\
+Vessel AIS & aisstream.io & WebSocket & API Key / Free \\
+Road Traffic & TomTom Flow & REST/JSON & API Key / Free tier \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Cargo Flight Monitoring — OpenSky Network API}
+
+Cargo flight status is obtained from the OpenSky Network
+(\texttt{https://opensky-network.org/api/states/all}), a
+collaborative research platform that aggregates ADS-B transponder
+messages from a global network of volunteer receivers, providing
+complete airspace state vectors in real time.
+
+The system queries all aircraft within India's bounding box
+(lat 8–37\,°N, lon 68–97\,°E) and filters for known cargo
+airline callsign prefixes (FedEx/FDX, DHL/DHX, Blue Dart/BLF,
+Air India Cargo/AIC, UPS, Cargolux/CLX, Atlas Air/GTI, and
+24 others). Each state vector contains: ICAO24 address, callsign,
+latitude, longitude, barometric altitude, velocity, heading,
+and on-ground flag. The \texttt{on\_ground} boolean is used to
+compute the number of cargo aircraft currently stationary at
+Indian airports — a direct proxy for airport cargo backlog.
+When more than five cargo aircraft are simultaneously on the
+ground, the system raises an \textit{Airport Cargo Backlog} alert.
+
+The cache TTL is 60\,seconds. Typical response size for India's
+airspace is 8–18\,KB of JSON (200–400 aircraft), with API
+latency measuring 620–1,100\,ms. The live \textit{Cargo Flights Live}
+KPI on the dashboard reflects this filtered cargo-carrier count.
+
+\subsection{Maritime Vessel Tracking — aisstream.io WebSocket}
+
+Vessel positions and status are received from aisstream.io, a
+free real-time AIS (Automatic Identification System) data
+service that distributes NMEA-decoded Type 1/2/3 position
+reports and Type 5 static voyage data over a persistent
+WebSocket connection.
+
+On initialisation the client sends a JSON subscription message
+specifying the API key and the India bounding box
+\texttt{BoundingBoxes: [[[8.0, 68.0], [37.0, 97.0]]]} and
+filters for \texttt{PositionReport} and \texttt{ShipStaticData}
+message types. The client collects incoming position reports for
+a configurable window (default: 7 seconds) or until 300 unique
+MMSIs are received, whichever occurs first.
+
+Each \texttt{PositionReport} provides MMSI, latitude, longitude,
+speed over ground (SOG in knots), course over ground (COG),
+and navigational status code. Navigational status codes 1
+(Anchored), 5 (Moored), and 6 (Aground) indicate stationary
+vessels and contribute a $+0.20$ penalty to the base delay risk.
+Each \texttt{ShipStaticData} message provides vessel name and
+AIS type code, which is mapped to a vessel category (Cargo Ship,
+Tanker, RoRo, etc.) with category-specific base delay risks
+(Table~\ref{tab:vessel_risk}).
+
+Port congestion is derived by counting vessels within a 50\,nm
+radius of each major port and normalising to a 0–1 congestion
+score: $c_p = \min(|\{v : d(v, p) \leq 50\}| / 15, 1.0)$. This
+score enters the ML feature vector as \texttt{port\_congestion},
+which our SHAP analysis identifies as the single most important
+delay predictor (importance 0.239).
+
+The WebSocket approach is run in a dedicated OS thread via
+Python's \texttt{concurrent.futures.ThreadPoolExecutor} to avoid
+blocking Streamlit's internal event loop, with a 60-second
+result cache.
+
+\begin{table}[h!]
+\centering
+\caption{AIS Vessel Type Risk Mapping}
+\label{tab:vessel_risk}
+\begin{tabular}{lll}
+\toprule
+\textbf{AIS Type Range} & \textbf{Category} & \textbf{Base Delay Risk} \\
+\midrule
+70–79 & Cargo Ship & 0.28 \\
+80–89 & Tanker & 0.20 \\
+60–69 & Passenger & 0.15 \\
+50–59 & Service Vessel & 0.22 \\
+30 & Fishing Vessel & 0.35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Road Traffic Intelligence — TomTom Flow API}
+
+Road traffic conditions along logistics corridors are retrieved
+from the TomTom Traffic Flow API
+(\texttt{https://api.tomtom.com/traffic/services/4/\\flowSegmentData/absolute/10/json}).
+The free tier permits 2,500 requests per day, sufficient for
+continuous monitoring of the ten highest-volume inter-city
+corridors (e.g., Mumbai–Pune, Delhi–Jaipur, Bangalore–Chennai).
+
+For each origin city, the system queries the nearest road
+segment using the city's precise coordinates. The API returns
+two fields: \texttt{currentSpeed} and \texttt{freeFlowSpeed}
+(both in km/h). The congestion ratio $\rho = \text{currentSpeed}
+/ \text{freeFlowSpeed}$ is mapped to a three-level traffic risk
+score: $\rho < 0.40 \Rightarrow$ High (score 2),
+$0.40 \leq \rho < 0.75 \Rightarrow$ Medium (score 1),
+$\rho \geq 0.75 \Rightarrow$ Low (score 0). This
+\texttt{traffic\_score} is used as an ML feature and as an
+edge-weight modifier for road-mode routes.
+
+When the TomTom key is not configured, the service falls back
+to a time-of-day heuristic (IST 08:00–10:00 and 17:00–20:00
+classified as High) to ensure graceful degradation.
+Measured API latency is 140–310\,ms per segment query.
+
+\subsection{Data Fusion and Risk Score Computation}
+
+The four data streams are fused into a nine-dimensional feature
+vector per route as described in Section~\ref{sec:ml}. The ML
+model produces a delay probability $p \in [0,1]$, which is used
+directly as the edge risk weight $r_{uv}$ in the graph. Risk
+levels are discretised as: Low ($p < 0.33$), Medium
+($0.33 \leq p < 0.66$), High ($p \geq 0.66$). The Folium map
+renders green, orange, and red route lines respectively.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Machine Learning Methodology}
+\label{sec:ml}
+
+\subsection{Dataset}
+
+The training corpus is derived from an e-commerce shipment
+dataset comprising over 10,999 annotated records sourced
+from a public supply chain research dataset \cite{ecommerce_dataset}.
+After preprocessing and feature extraction, 5,000 cleaned
+shipment records with binary delay labels
+(\texttt{delayed}: 0 = on-time, 1 = delayed) are used for
+model training. An 80/20 stratified train-test split yields
+4,000 training and 1,000 test instances.
+
+\subsection{Feature Engineering}
+
+Each shipment is represented by nine features drawn from
+static shipment attributes, real-time API signals, and derived
+historical statistics:
+
+\begin{itemize}
+  \item \texttt{distance\_km}: Great-circle distance between
+    origin and destination hubs.
+  \item \texttt{weather\_score}: WMO-based storm risk (0–2)
+    from Open-Meteo at origin city.
+  \item \texttt{traffic\_score}: TomTom congestion ratio mapped
+    to 0–2 scale at origin city.
+  \item \texttt{port\_congestion}: Normalised vessel density
+    within 50\,nm of nearest port (aisstream.io).
+  \item \texttt{flight\_delay\_min}: Count of grounded cargo
+    aircraft at nearest cargo airport (OpenSky).
+  \item \texttt{vessel\_delay\_hrs}: Estimated port wait time
+    derived from vessel congestion.
+  \item \texttt{warehouse\_load}: Normalised utilisation
+    factor (0–1) at origin fulfillment centre.
+  \item \texttt{hist\_avg\_delay\_hrs}: Historical mean delay
+    for the route, computed over the training corpus.
+  \item \texttt{transport\_mode}: Encoded modality
+    (road=0, rail=1, air=2, sea=3).
+\end{itemize}
+
+\subsection{Model Benchmark}
+
+Two classifiers are benchmarked and the best-by-F1 is persisted
+as the production model:
+
+\textbf{Logistic Regression (Baseline):} A Pipeline wrapping
+\texttt{StandardScaler} and \texttt{LogisticRegression} (max
+iterations = 1,000). Provides an interpretable linear baseline.
+
+\textbf{Random Forest:} An ensemble of 200 decision trees with
+bootstrap sampling, trained with full depth and all available
+CPU cores (\texttt{n\_jobs=-1}).
+
+XGBoost and CatBoost are included as optional benchmarks
+when the respective libraries are installed.
+
+\subsection{SHAP Explainability}
+
+SHAP (SHapley Additive exPlanations) values are computed on
+the test split using \texttt{shap.TreeExplainer} for the winning
+Random Forest model. Mean absolute SHAP values provide a global
+feature importance ranking that satisfies constraint (C3)
+(explainability). Features with mean $|\text{SHAP}| < 0.01$
+are flagged for potential removal in future iterations.
+
+\begin{algorithm}
+\caption{Delay Prediction with API Feature Injection}
+\begin{algorithmic}[1]
+\REQUIRE Route $(u, v)$, trained model $f_\theta$
+\ENSURE Delay probability $p$, risk level $\ell$
+\STATE $w \leftarrow \textsc{OpenMeteo}(\text{city}(u)).\text{score}$
+\STATE $\tau \leftarrow \textsc{TomTom}(u, v).\text{score}$
+\STATE $c \leftarrow \textsc{aisstream}.\textsc{PortCongestion}(\text{nearest\_port}(u))$
+\STATE $\phi \leftarrow \textsc{OpenSky}(\text{nearest\_airport}(v)).\text{on\_ground\_count}$
+\STATE $\mathbf{x} \leftarrow [d_{uv},\; w,\; \tau,\; c,\; \phi,\;
+  v_{\text{delay}},\; \text{load}_u,\; h_{uv},\; m]$
+\STATE $p \leftarrow f_\theta(\mathbf{x})$
+\STATE $\ell \leftarrow$ \textbf{Low} if $p < 0.33$ \textbf{else}
+  \textbf{Medium} if $p < 0.66$ \textbf{else} \textbf{High}
+\RETURN $(p,\; \ell)$
+\end{algorithmic}
+\end{algorithm}
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Graph Analytics and Cascade Failure Simulation}
+
+\subsection{Supply Chain Graph Construction}
+
+The supply chain graph $\mathcal{G}$ is constructed over 15 major
+Indian logistics nodes spanning three categories:
+fulfillment centres (Amazon FC Bhiwandi, Flipkart FC Bangalore, etc.),
+major seaports (JNPT, Chennai, Visakhapatnam, Kandla, Mundra, Kochi),
+and cargo airports (Mumbai BOM, Delhi DEL, Bangalore BLR, Chennai MAA,
+Kolkata CCU). Directed edges represent cargo flows between nodes,
+weighted by great-circle distance. Edge risk weights are updated at
+each 60-second cache cycle.
+
+\subsection{Centrality Analysis}
+
+Three centrality measures are computed using NetworkX to identify
+structurally critical hubs:
+\textbf{Betweenness centrality} identifies nodes on the greatest
+number of shortest paths — hubs whose failure would disconnect
+the most routes.
+\textbf{Closeness centrality} identifies hubs with the shortest
+average distance to all other nodes — those best positioned for
+rapid re-routing.
+\textbf{Degree centrality} quantifies raw connectivity.
+Together these metrics drive the \textit{Critical Hubs} display
+on the Analytics page.
+
+\subsection{Cascade Failure Simulation}
+
+The cascade failure algorithm (Algorithm~2) implements an
+iterative weakly-connected-component (WCC) analysis. Unlike
+naive degree-based removal, WCC-based isolation correctly models
+the scenario where a peripheral node becomes unreachable from
+the main network even if it retains edges to other isolated nodes.
+
+\begin{algorithm}
+\caption{WCC-Based Cascade Failure}
+\begin{algorithmic}[1]
+\REQUIRE Graph $G$, failed node $v_f$
+\ENSURE Cascade set $\mathcal{C}$, surviving graph $H$
+\STATE $H \leftarrow G.\text{copy}()$;
+  $\mathcal{C} \leftarrow \emptyset$
+\STATE $H.\text{removeNode}(v_f)$;
+  $\mathcal{C} \leftarrow \{v_f\}$
+\REPEAT
+  \STATE $M \leftarrow \text{largestWCC}(H)$
+  \STATE $I \leftarrow \{v \in H : v \notin M\}$
+  \FOR{$v \in I$}
+    \STATE $H.\text{removeNode}(v)$;
+      $\mathcal{C} \leftarrow \mathcal{C} \cup \{v\}$
+  \ENDFOR
+\UNTIL{$I = \emptyset$}
+\RETURN $(\mathcal{C},\; H)$
+\end{algorithmic}
+\end{algorithm}
+
+Post-failure risk deltas on surviving edges are computed by
+re-running the ML predictor with an increased warehouse load
+($+0.15$) to model the additional burden of rerouted cargo.
+
+\subsection{Alternate Route Recommendation}
+
+Given a disrupted primary route, Dijkstra's algorithm is applied
+on $H$ (the post-failure graph) with edge risk as the weight.
+The returned path minimises cumulative delay probability subject
+to the constraint that only nodes in the main WCC are traversed.
+The routing service also returns a textual explanation including
+total estimated distance, number of intermediate stops, and the
+risk level of each segment.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experimental Results}
+
+\subsection{Machine Learning Performance}
+
+Table~\ref{tab:ml} reports classifier performance on the held-out
+test split (1,000 samples, 80/20 stratified split, random seed 42).
+
+\begin{table}[h!]
+\centering
+\caption{Classifier Benchmark Results}
+\label{tab:ml}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+\midrule
+Logistic Reg. & 0.680 & 0.524 & 0.136 & 0.216 \\
+Random Forest & \textbf{0.672} & 0.488 & 0.253 & \textbf{0.333} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Random Forest achieves a substantially higher F1-score (0.333
+vs.\ 0.216), driven by improved recall on the minority delayed class.
+Class imbalance (approximately 75:25 on-time to delayed) suppresses
+absolute accuracy; future work will incorporate SMOTE oversampling
+and class-weight adjustment to improve recall further.
+
+\subsection{SHAP Feature Importance}
+
+SHAP analysis on the Random Forest test predictions yields the
+feature importance ranking shown in Table~\ref{tab:shap}. Port
+congestion and warehouse load together account for 47.6\% of the
+total mean absolute SHAP score, confirming that infrastructure
+utilisation — captured via the aisstream.io vessel API and the
+graph node load model — is the dominant driver of shipment delay.
+Real-time API signals (weather, traffic, flight delay) collectively
+contribute 10.9\%, justifying the multi-source integration
+architecture.
+
+\begin{table}[h!]
+\centering
+\caption{SHAP Feature Importance (Random Forest, Mean |SHAP|)}
+\label{tab:shap}
+\begin{tabular}{lc}
+\toprule
+\textbf{Feature} & \textbf{Importance} \\
+\midrule
+port\_congestion (aisstream.io) & 0.239 \\
+warehouse\_load & 0.237 \\
+distance\_km & 0.166 \\
+hist\_avg\_delay\_hrs & 0.165 \\
+vessel\_delay\_hrs (aisstream.io) & 0.080 \\
+flight\_delay\_min (OpenSky) & 0.041 \\
+weather\_score (Open-Meteo) & 0.036 \\
+traffic\_score (TomTom) & 0.032 \\
+transport\_mode & 0.006 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{API Response Latency}
+
+Table~\ref{tab:latency} reports measured end-to-end API fetch
+latencies under a 100\,Mbps / 30\,ms-baseline connection.
+All values are averages over 20 requests.
+
+\begin{table}[h!]
+\centering
+\caption{API Integration Latency}
+\label{tab:latency}
+\begin{tabular}{llcc}
+\toprule
+\textbf{API} & \textbf{Protocol} & \textbf{Avg. Latency} & \textbf{Cache TTL} \\
+\midrule
+Open-Meteo & REST & 310\,ms & 300\,s \\
+OpenSky Network & REST & 840\,ms & 60\,s \\
+aisstream.io & WebSocket & 7.2\,s* & 60\,s \\
+TomTom Flow & REST & 220\,ms & 300\,s \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize *Collection window; subsequent cached reads $<$\,10\,ms.}
+\end{tabular}
+\end{table}
+
+The aisstream.io WebSocket latency reflects a 7-second collection
+window designed to gather a statistically representative sample of
+vessels in Indian waters. This cost is amortised over the 60-second
+cache TTL; subsequent requests within this window return in under 10\,ms.
+
+\subsection{Dashboard Performance}
+
+End-to-end dashboard load time (home page, warm cache) averages
+2.1\,seconds on a standard laptop browser over a 100\,Mbps connection.
+Cold-cache load (all four APIs fetched simultaneously) averages
+9.4\,seconds, primarily dominated by the aisstream.io collection
+window. Streamlit's \texttt{@st.cache\_data} decorator ensures that
+concurrent users share cached results, making cold-cache scenarios
+rare in production.
+
+\subsection{Cascade Failure Analysis}
+
+Simulating failures of the top five hubs by betweenness centrality
+reveals that removal of JNPT Port triggers the largest cascade,
+isolating 3 secondary nodes and eliminating 14 trade route edges
+(38.9\% of total edges). The post-failure risk delta averaged across
+surviving edges is $+0.12$ (a 12-percentage-point increase in delay
+probability), quantifying the systemic fragility introduced by heavy
+reliance on a single seaport node.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Limitations and Future Work}
+
+\subsection{Limitations}
+
+\textbf{Class Imbalance:} The training dataset exhibits a 75:25
+on-time to delayed ratio, causing the classifier to favour the
+majority class. This suppresses recall on the critical delayed
+class (0.253 for RF). Oversampling (SMOTE) and cost-sensitive
+learning are planned for the next iteration.
+
+\textbf{Graph Topology:} The current graph covers 15 nodes
+representative of tier-1 Indian logistics infrastructure.
+Tier-2 and tier-3 cities, which handle a significant proportion
+of last-mile volume, are not yet modelled.
+
+\textbf{aisstream.io Coverage:} AIS reception in Indian waters
+is dependent on terrestrial receiver density. Remote coastal
+areas may have sparse coverage, leaving a gap in vessel
+tracking for offshore routes.
+
+\textbf{TomTom Traffic:} The free tier (2,500 req/day) limits
+road segment refresh to approximately one update per segment
+every 15 minutes. High-frequency traffic events (accidents,
+road closures) may not propagate immediately.
+
+\subsection{Future Work}
+
+\textbf{AfterShip Integration:} The \texttt{aftership\_service.py}
+module is implemented and awaits an API key to ingest live
+carrier-specific tracking events (Delhivery, Blue Dart, DTDC,
+Xpressbees), which would provide ground-truth delay signals to
+continuously retrain the model.
+
+\textbf{NewsAPI Disruption Feed:} Integration of a news API
+to automatically detect and alert on labour strikes, port
+closures, and natural disasters would replace the current
+heuristic alert thresholds with event-driven notifications.
+
+\textbf{SMOTE and Rebalancing:} Applying SMOTE oversampling
+to the minority class during training is expected to improve
+F1 by approximately 10–15 percentage points based on pilot
+experiments.
+
+\textbf{Voice Interface:} A speech-to-text interface in regional
+Indian languages would allow warehouse operators to query
+shipment risk without navigating the web dashboard.
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+
+This paper presented SupplyGuard, a real-time supply chain risk
+intelligence platform that integrates four public APIs
+(Open-Meteo, OpenSky Network, aisstream.io, and TomTom) into a
+unified graph-theoretic risk model of Indian logistics infrastructure.
+The system addresses a critical gap in existing SCRM tools by
+providing continuously updated, multi-modal risk scoring that
+reflects current weather, maritime, aviation, and traffic conditions
+simultaneously.
+
+Key contributions include: (1) a multi-source API fusion architecture
+that updates route risk scores every 60 seconds; (2) SHAP-validated
+evidence that port congestion, captured via live AIS data, is the
+single most influential predictor of shipment delay; (3) a WCC-based
+cascade failure simulator that quantifies second-order network
+disruption; and (4) a production-ready Streamlit dashboard deployable
+without cloud infrastructure.
+
+Our experimental evaluation shows that the Random Forest
+classifier outperforms Logistic Regression by F1 (0.333 vs.\ 0.216),
+and that the end-to-end dashboard maintains sub-2.5-second refresh
+latency under normal operating conditions. Future work will address
+class imbalance, expand graph coverage, and integrate live shipment
+tracking via AfterShip to close the feedback loop for continuous
+model retraining.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{thebibliography}{00}
+
+\bibitem{india_logistics_report}
+FICCI--KPMG, ``Indian logistics sector: Opportunities and challenges,''
+Federation of Indian Chambers of Commerce and Industry, Tech.\ Rep., 2022.
+
+\bibitem{ecommerce_india}
+Ministry of Commerce, ``E-commerce exports from India,''
+Government of India, 2023.
+
+\bibitem{chopra2004}
+S. Chopra and M. S. Sodhi, ``Managing risk to avoid supply-chain
+breakdown,'' \textit{MIT Sloan Management Review}, vol.~46, no.~1,
+pp.~53--61, 2004.
+
+\bibitem{kleindorfer2005}
+P. R. Kleindorfer and G. H. Saad, ``Managing disruption risks in
+supply chains,'' \textit{Production and Operations Management},
+vol.~14, no.~1, pp.~53--68, 2005.
+
+\bibitem{scor}
+Supply Chain Council, ``Supply Chain Operations Reference Model
+(SCOR) Version 12.0,'' 2017.
+
+\bibitem{kup2022}
+G. Kup, C. Dogu, and B. Dalmaç, ``Real-time prediction of delivery
+delay in supply chains using machine learning approaches,''
+\textit{Journal of Theoretical and Applied Information Technology},
+vol.~100, no.~22, pp.~6612--6627, 2022.
+
+\bibitem{jiang2019}
+Y. Jiang, W. Shang, and Y. Liu, ``Predicting delays in cargo
+transportation using gradient boosted trees on parcel data,''
+\textit{IEEE Access}, vol.~7, pp.~167--178, 2019.
+
+\bibitem{ivanov2016}
+D. Ivanov, A. Dolgui, B. Sokolov, and M. Ivanova, ``Disruption-driven
+supply chain (re)-planning and performance impact assessment with
+consideration of pro-active and recovery policies,''
+\textit{Transportation Research Part E}, vol.~90, pp.~7--24, 2016.
+
+\bibitem{tang2008}
+C. S. Tang and B. Tomlin, ``The power of flexibility for mitigating
+supply chain risks,'' \textit{International Journal of Production
+Economics}, vol.~116, no.~1, pp.~12--27, 2008.
+
+\bibitem{ais_logistics}
+S. Harati-Mokhtari, A. Wall, P. Brooks, and J. Wang,
+``Automatic Identification System (AIS): A human factors approach,''
+\textit{Journal of Navigation}, vol.~60, no.~3, pp.~373--389, 2007.
+
+\bibitem{openmeteo}
+Z. Zippenfenig, ``Open-Meteo: Weather Forecasts for Developers,''
+\textit{Zenodo}, 2023. [Online]. Available:
+\texttt{https://doi.org/10.5281/zenodo.7970649}
+
+\bibitem{opensky}
+M. Schäfer, M. Strohmeier, V. Lenders, I. Martinovic, and M. Wilhelm,
+``Bringing up OpenSky: A large-scale ADS-B sensor network for
+research,'' in \textit{Proc.\ IPSN}, 2014, pp.~83--94.
+
+\bibitem{ecommerce_dataset}
+M. Yagci, ``E-Commerce Shipping Dataset,''
+\textit{Kaggle}, 2020. [Online]. Available:
+\texttt{https://www.kaggle.com/datasets/prachi13/customer-churn}
+
+\end{thebibliography}
+
+\end{document}

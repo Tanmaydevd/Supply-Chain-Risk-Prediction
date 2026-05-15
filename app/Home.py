@@ -53,34 +53,63 @@ def _threats():
     from services.flight_service import get_cargo_flights
 
     results = []
-    # Weather threats
-    for city in ["Mumbai","Delhi","Chennai","Kolkata","Bangalore"]:
+
+    # ── Weather — always show all 5 cities with real WMO data ─────────────────
+    for city in ["Mumbai", "Delhi", "Chennai", "Kolkata", "Bangalore"]:
         w = get_weather(city)
-        if w["score"] >= 1:
-            results.append({"title":"Storm Alert" if w["score"]==2 else "Rain / Low Visibility",
-                "loc":f"{city} Hub","sev":"Critical" if w["score"]==2 else "Medium",
-                "orders":random.randint(6,40),"action":"Rerouted" if w["score"]==2 else "Delayed",
-                "detail":f"{w['precipitation_mm']}mm · {w['windspeed_kmh']}km/h"})
-    # Port congestion threats
-    for port in ["JNPT","Chennai","Visakhapatnam"]:
+        if w["score"] == 2:
+            title, sev, action = "Storm Alert",          "Critical", "Reroute advised"
+        elif w["score"] == 1:
+            title, sev, action = "Rain / Low Visibility","Medium",   "Monitor"
+        else:
+            title, sev, action = "Clear Conditions",     "Low",      "On schedule"
+        results.append({
+            "title":  title,
+            "loc":    f"{city} Hub",
+            "sev":    sev,
+            "orders": "—",
+            "action": action,
+            "detail": f"{w['precipitation_mm']}mm · {w['windspeed_kmh']}km/h",
+        })
+
+    # ── Port congestion — always show all 3 ports with real vessel data ────────
+    for port in ["JNPT", "Chennai", "Visakhapatnam"]:
         c = get_port_congestion(port)
-        if c["congestion"] > 0.6:
-            results.append({"title":"Port Congestion","loc":f"{port} Port",
-                "sev":"High" if c["congestion"]>0.75 else "Medium",
-                "orders":c["vessel_count"]*3,
-                "action":"Delayed","detail":f"{c['vessel_count']} vessels · wait {c['avg_wait_hrs']:.0f}h"})
-    # Flight threats
+        if c["congestion"] > 0.75:
+            sev, action = "High",   "Delayed"
+        elif c["congestion"] > 0.4:
+            sev, action = "Medium", "Monitor"
+        else:
+            sev, action = "Low",    "Normal"
+        results.append({
+            "title":  "Port Congestion" if c["congestion"] > 0.4 else "Port Clear",
+            "loc":    f"{port} Port",
+            "sev":    sev,
+            "orders": f"{c['vessel_count']} vessels",
+            "action": action,
+            "detail": f"{c['vessel_count']} vessels within 50nm · wait ~{c['avg_wait_hrs']:.0f}h",
+        })
+
+    # ── Cargo flights — always show real OpenSky grounded count ───────────────
     try:
-        flights = get_cargo_flights(timeout=4)
-        on_ground = [f for f in flights if f["is_cargo"] and f["on_ground"]]
+        flights     = get_cargo_flights(timeout=4)
+        airborne    = [f for f in flights if f["is_cargo"] and not f["on_ground"]]
+        on_ground   = [f for f in flights if f["is_cargo"] and f["on_ground"]]
         if len(on_ground) > 5:
-            results.append({"title":"Airport Cargo Backlog","loc":"Multiple Airports",
-                "sev":"Medium","orders":len(on_ground)*2,
-                "action":"Delayed","detail":f"{len(on_ground)} cargo aircraft on ground"})
+            sev, title, action = "Medium", "Airport Cargo Backlog", "Delayed"
+        else:
+            sev, title, action = "Low",    "Cargo Flights Normal",  "On schedule"
+        results.append({
+            "title":  title,
+            "loc":    "Indian Airspace",
+            "sev":    sev,
+            "orders": f"{len(airborne)} airborne",
+            "action": action,
+            "detail": f"{len(airborne)} airborne · {len(on_ground)} on ground (OpenSky live)",
+        })
     except Exception:
         pass
-    results.append({"title":"Labour Strike","loc":"Mumbai Port","sev":"High",
-        "orders":12,"action":"Rerouted","detail":"Dock workers industrial action"})
+
     return results
 
 threats = _threats()
@@ -101,9 +130,9 @@ def _live_assets():
 
 all_risks      = [d["risk"] for _,_,d in G.edges(data=True)] if graph_ok else []
 routes_at_risk = sum(1 for r in all_risks if r >= 0.5)
-total_active   = max(m_data["n_edges"]*34, 1200)
-ships_at_risk  = routes_at_risk * 31
-fin_exp        = round(ships_at_risk * 22000 / 1e6, 1)
+network_routes = m_data["n_edges"]           # real — graph edge count
+high_risk_routes = routes_at_risk            # real — edges with risk >= 0.5
+avg_risk_pct   = round(m_data["avg_risk"] * 100, 1)  # real — mean edge risk %
 ai_threats     = len(threats)
 avg_risk       = m_data["avg_risk"]
 live_flights, live_vessels = _live_assets()
@@ -152,23 +181,23 @@ components.html(f"""
 </style>
 <div class="grid">
   <div class="card">
-    <div class="label">Active Shipments <span class="icon">📦</span></div>
+    <div class="label">Network Routes <span class="icon">🗺</span></div>
     <div class="value c-white" id="v1">0</div>
   </div>
   <div class="card">
-    <div class="label">Shipments at Risk <span class="icon">⚠️</span></div>
+    <div class="label">High Risk Routes <span class="icon">⚠️</span></div>
     <div class="value c-red" id="v2">0</div>
   </div>
   <div class="card">
-    <div class="label">AI Threats <span class="icon">🛡️</span></div>
+    <div class="label">AI Threats <span class="icon">🛡</span></div>
     <div class="value c-orange" id="v3">0</div>
   </div>
   <div class="card">
-    <div class="label">Financial Exposure <span class="icon">💰</span></div>
-    <div class="value c-white" id="v4">₹0M</div>
+    <div class="label">Avg Network Risk <span class="icon">📊</span></div>
+    <div class="value c-white" id="v4">0%</div>
   </div>
   <div class="card">
-    <div class="label">Cargo Flights Live <span class="icon">✈️</span></div>
+    <div class="label">Cargo Flights Live <span class="icon">✈</span></div>
     <div class="value c-blue" id="v5">0</div>
   </div>
   <div class="card">
@@ -182,10 +211,10 @@ function animCount(id,target,prefix,suffix,dur){{
   var t=setInterval(function(){{start+=inc;if(start>=target){{start=target;clearInterval(t);}}
     el.textContent=prefix+Math.round(start).toLocaleString()+suffix;}},iv);
 }}
-animCount('v1',{total_active},'','',800);
-animCount('v2',{ships_at_risk},'','',900);
+animCount('v1',{network_routes},'','',800);
+animCount('v2',{high_risk_routes},'','',900);
 animCount('v3',{ai_threats},'','',600);
-animCount('v4',{fin_exp},'₹','M',700);
+animCount('v4',{avg_risk_pct},'','%',700);
 animCount('v5',{live_flights},'','',1000);
 animCount('v6',{live_vessels},'','',1100);
 </script>
@@ -286,62 +315,68 @@ with feed_col:
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-# ── ACTIVE SHIPMENTS TABLE ────────────────────────────────────────────────────
+# ── ACTIVE SHIPMENTS TABLE (AfterShip live) ───────────────────────────────────
 import pandas as pd
+from services.aftership_service import get_all_trackings
 
-PRODUCTS = ["Electronics","Automotive Parts","Pharmaceuticals","Textiles & Apparel",
-            "Industrial Machinery","FMCG","Semiconductors","Cold Chain / Food",
-            "Chemicals","Steel & Metals"]
+@st.cache_data(ttl=120)
+def _load_shipments():
+    return get_all_trackings(limit=20)
 
-def _status(r):
-    if r>=.70: return "🟣 Rerouted"
-    if r>=.55: return "🔴 Delayed"
-    if r>=.33: return "🟡 At Risk"
-    return "🟢 In Transit"
-
-random.seed(42)
-today = datetime.date.today()
-rows = []
-if graph_ok:
-    for i,(u,v,d) in enumerate(sorted(G.edges(data=True),key=lambda x:-x[2]["risk"])[:10]):
-        eta = today + datetime.timedelta(days=random.randint(2,14))
-        rows.append({"Order ID":f"ORD-{8821+i}",
-                     "Product":PRODUCTS[i%len(PRODUCTS)],
-                     "Source":f"{u}, IN", "Destination":f"{v}, IN",
-                     "Status":_status(d["risk"]),
-                     "Delay Risk":f"{d['risk']:.0%}",
-                     "Carrier":random.choice(["Delhivery","DTDC","Blue Dart","Ekart","Xpressbees"]),
-                     "ETA":eta.strftime("%b %d, %Y")})
-
-# section header
 components.html("""
 <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
 *{font-family:'Inter',sans-serif;margin:0;padding:0}
 .s{font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.08em}
 </style><div class="s">📦 Active Shipments</div>""", height=24)
 
-if rows:
+_raw = _load_shipments()
+
+def _status_icon(status: str) -> str:
+    s = status.lower()
+    if "exception" in s or "fail" in s or "expired" in s: return "🔴 " + status
+    if "attempt" in s or "pending" in s:                  return "🟡 " + status
+    if "delivered" in s:                                   return "🟢 " + status
+    return "🔵 " + status
+
+if _raw:
+    rows = []
+    for t in _raw:
+        risk_pct = int(t["risk"] * 100)
+        rows.append({
+            "Tracking #":   t["id"],
+            "Carrier":      t["carrier"],
+            "Status":       _status_icon(t["status"]),
+            "Source":       t.get("source", "India"),
+            "Destination":  t.get("destination", "India"),
+            "Delay Risk":   f"{risk_pct}%",
+            "ETA":          t.get("eta", "—")[:10] if t.get("eta") else "—",
+            "Last Updated": t.get("last_updated", "—")[:16] if t.get("last_updated") else "—",
+            "Data":         t.get("data_source", "AfterShip"),
+        })
+
     df = pd.DataFrame(rows)
 
     def _style_status(col):
-        return ["color:#a78bfa;font-weight:600" if "Rerouted" in v
-                else "color:#fca5a5;font-weight:600" if "Delayed" in v
-                else "color:#fde68a;font-weight:600" if "At Risk" in v
-                else "color:#86efac;font-weight:600" for v in col]
+        return ["color:#fca5a5;font-weight:600" if "🔴" in v
+                else "color:#fde68a;font-weight:600" if "🟡" in v
+                else "color:#86efac;font-weight:600" if "🟢" in v
+                else "color:#93c5fd;font-weight:600" for v in col]
 
     def _style_risk(col):
         out = []
         for v in col:
-            p = float(v.strip("%"))/100
-            out.append("color:#fca5a5;font-weight:700" if p>=.70
-                        else "color:#fde68a;font-weight:700" if p>=.50
-                        else "color:#86efac")
+            p = float(v.strip("%")) / 100
+            out.append("color:#fca5a5;font-weight:700" if p >= .70
+                       else "color:#fde68a;font-weight:700" if p >= .40
+                       else "color:#86efac")
         return out
 
     styled = df.style.apply(_style_status, subset=["Status"]).apply(_style_risk, subset=["Delay Risk"])
     st.dataframe(styled, use_container_width=True, hide_index=True, height=380)
+
+    st.caption(f"Live data from AfterShip · {len(_raw)} shipment(s) · refreshes every 2 min")
 else:
-    st.info("Run pipeline to load shipment data.")
+    st.info("No shipments tracked yet. Add real tracking numbers at admin.aftership.com → Tracking → Add shipment.")
 
 st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
 

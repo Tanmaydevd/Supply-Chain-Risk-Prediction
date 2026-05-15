@@ -74,15 +74,20 @@ with col_fetch:
     fetch_clicked = st.button("🌐 Fetch Live Conditions", type="secondary", use_container_width=True)
 
 # Store live results in session so they survive re-runs
-if "live_weather" not in st.session_state:
-    st.session_state.live_weather = None
-if "live_traffic" not in st.session_state:
-    st.session_state.live_traffic = None
+if "live_weather"    not in st.session_state: st.session_state.live_weather  = None
+if "live_traffic"    not in st.session_state: st.session_state.live_traffic  = None
+if "weather_slider"  not in st.session_state: st.session_state.weather_slider = "Cloudy"
+if "traffic_slider"  not in st.session_state: st.session_state.traffic_slider = "Medium"
 
 if fetch_clicked:
     with st.spinner("Fetching weather and traffic..."):
         st.session_state.live_weather = get_weather(origin)
         st.session_state.live_traffic = get_traffic(origin, destination)
+        # force sliders to update with live values
+        _ws = {0: "Cloudy", 1: "Rain", 2: "Storm"}
+        _ts = {0: "Low", 1: "Medium", 2: "High"}
+        st.session_state["weather_slider"] = _ws.get(st.session_state.live_weather["score"], "Cloudy")
+        st.session_state["traffic_slider"] = _ts.get(st.session_state.live_traffic["score"], "Medium")
 
 lw = st.session_state.live_weather
 lt = st.session_state.live_traffic
@@ -131,12 +136,11 @@ traffic_options = list(TRAFFIC_MAP.keys())  # ["Low","Medium","High"]
 _weather_score_to_label = {0: "Cloudy", 1: "Rain", 2: "Storm"}
 _traffic_score_to_label = {0: "Low", 1: "Medium", 2: "High"}
 
-default_weather = _weather_score_to_label.get(lw["score"], "Cloudy") if lw else "Cloudy"
-default_traffic = _traffic_score_to_label.get(lt["score"], "Medium") if lt else "Medium"
-
 col_w, col_t, col_l = st.columns(3)
-weather = col_w.select_slider("Weather condition", options=weather_options, value=default_weather)
-traffic = col_t.select_slider("Traffic level", options=traffic_options, value=default_traffic)
+weather = col_w.select_slider("Weather condition", options=weather_options,
+                               key="weather_slider")
+traffic = col_t.select_slider("Traffic level", options=traffic_options,
+                               key="traffic_slider")
 load = col_l.slider("Warehouse load (0=empty, 1=full)", 0.0, 1.0, 0.70, 0.05)
 
 # ── Auto-detect transport mode from edge + node types ─────────────────────────
@@ -225,42 +229,139 @@ elif mode_int == 2:   # Air — fetch live flight data
                help="Aircraft on ground — potential loading delay")
     mc4.metric("Est. flight delay",  f"{flight_delay:.0f} min")
 
-else:   # Road — show TomTom traffic
-    from services.traffic_service import get_traffic
-    if lw is None:   # haven't fetched yet
-        _lt = get_traffic(origin, destination)
-    else:
-        _lt = lt or get_traffic(origin, destination)
-    mc1, mc2, mc3, mc4 = st.columns(4)
-    mc1.metric("Mode",       "🚛 Road Freight")
-    mc2.metric("Live traffic", _lt["label"],
-               help="TomTom Traffic Flow API")
-    spd  = _lt.get("current_speed_kmh")
-    fspd = _lt.get("free_flow_speed_kmh")
-    mc3.metric("Speed",      f"{spd} km/h" if spd else "N/A",
-               help="Current road speed from TomTom")
-    mc4.metric("Free-flow",  f"{fspd} km/h" if fspd else "N/A")
+else:   # Road — use traffic already fetched via Fetch Live Conditions
+    _lt = lt or get_traffic(origin, destination)
 
 # ── Predict button ─────────────────────────────────────────────────────────────
 if st.button("Predict Delay Risk", type="primary"):
     direct = edges[(edges.origin == origin) & (edges.destination == destination)]
 
     if direct.empty:
-        st.warning("No direct edge between these cities — fetching alternate route via the graph.")
+        # ── Find shortest path via Dijkstra ───────────────────────────────────
         try:
             alt = best_route(origin, destination)
         except FileNotFoundError:
             st.error("Model not trained yet. Run `python run_pipeline.py`.")
             st.stop()
-        if alt.get("path"):
-            st.success(
-                f"**Suggested:** {' -> '.join(alt['path'])}  \n"
-                f"Total network risk: {alt['total_risk']}  ·  "
-                f"Distance: {alt['total_distance_km']} km  ·  "
-                f"{alt['hops']} hops"
-            )
-        else:
+
+        if not alt.get("path"):
             st.error("No path exists between these cities.")
+            st.stop()
+
+        path = alt["path"]
+        st.info(f"No direct edge — shortest path via graph: **{' → '.join(path)}** ({alt['hops']} hops · {alt['total_distance_km']} km)")
+
+        # ── Predict delay for each hop, then average ──────────────────────────
+        hop_results = []
+        for u, v in zip(path[:-1], path[1:]):
+            hop_edge = edges[(edges.origin == u) & (edges.destination == v)]
+            if not hop_edge.empty:
+                he        = hop_edge.iloc[0]
+                dist_km   = float(he.distance_km)
+                hist_d    = float(he.hist_avg_delay_hrs)
+                edge_mode = int(he["transport_mode"]) if "transport_mode" in he.index else mode_int
+            else:
+                dist_km   = round(alt["total_distance_km"] / alt["hops"], 1)
+                hist_d    = 3.0
+                edge_mode = mode_int
+
+            r = predict_delay(
+                distance_km        = dist_km,
+                weather_score      = WEATHER_MAP[weather],
+                traffic_score      = TRAFFIC_MAP[traffic],
+                warehouse_load     = load,
+                hist_avg_delay_hrs = hist_d,
+                transport_mode     = edge_mode,
+                port_congestion    = port_cong,
+                vessel_delay_hrs   = vessel_delay,
+                flight_delay_min   = flight_delay,
+            )
+            hop_results.append({
+                "hop":   f"{u} → {v}",
+                "prob":  r["delay_probability"],
+                "score": r["risk_score"],
+                "level": r["risk_level"],
+                "dist":  dist_km,
+                "hist":  hist_d,
+            })
+
+        # ── Average across all hops ───────────────────────────────────────────
+        avg_prob  = round(sum(h["prob"]  for h in hop_results) / len(hop_results), 3)
+        avg_score = int(  sum(h["score"] for h in hop_results) / len(hop_results))
+        if avg_prob >= 0.66:
+            avg_level = "High"
+        elif avg_prob >= 0.33:
+            avg_level = "Medium"
+        else:
+            avg_level = "Low"
+
+        st.subheader(f"Route prediction: {origin} → {destination}")
+
+        # ── Animated gauge (same as direct route) ────────────────────────────
+        clr = "#ef4444" if avg_score >= 66 else "#f97316" if avg_score >= 33 else "#22c55e"
+        components.html(f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap');
+*{{font-family:'Inter',sans-serif;box-sizing:border-box;margin:0;padding:0}}
+.wrap{{display:flex;gap:20px;align-items:center;padding:6px 0}}
+.gauge-box{{position:relative;width:160px;height:160px}}
+svg{{transform:rotate(-90deg)}}
+circle{{fill:none;stroke-width:14;stroke-linecap:round}}
+.bg{{stroke:#1f2937}}
+.arc{{stroke:{clr};stroke-dasharray:0 440;animation:fill .9s ease forwards}}
+@keyframes fill{{to{{stroke-dasharray:{int(avg_score/100*440)} 440}}}}
+.center{{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}}
+.pct{{font-size:2rem;font-weight:700;color:{clr}}}
+.lbl{{font-size:.75rem;color:#9ca3af;margin-top:2px}}
+.stats{{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1}}
+.s-card{{background:#161b27;border:1px solid #1f2937;border-radius:10px;padding:14px}}
+.s-lbl{{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}}
+.s-val{{font-size:1.4rem;font-weight:700;color:#f9fafb}}
+</style>
+<div class="wrap">
+  <div class="gauge-box">
+    <svg width="160" height="160" viewBox="0 0 160 160">
+      <circle class="bg"  cx="80" cy="80" r="70"/>
+      <circle class="arc" cx="80" cy="80" r="70"/>
+    </svg>
+    <div class="center"><div class="pct">{avg_score}</div><div class="lbl">avg risk score</div></div>
+  </div>
+  <div class="stats">
+    <div class="s-card"><div class="s-lbl">Avg Delay Probability</div>
+      <div class="s-val" style="color:{clr}">{avg_prob:.0%}</div></div>
+    <div class="s-card"><div class="s-lbl">Overall Risk Level</div>
+      <div class="s-val" style="color:{clr}">{avg_level}</div></div>
+    <div class="s-card"><div class="s-lbl">Total Distance</div>
+      <div class="s-val">{alt['total_distance_km']} km</div></div>
+    <div class="s-card"><div class="s-lbl">Hops</div>
+      <div class="s-val">{alt['hops']} stops</div></div>
+  </div>
+</div>
+""", height=185)
+
+        # ── Per-hop breakdown table ───────────────────────────────────────────
+        st.markdown("**Per-hop breakdown**")
+        hop_df = pd.DataFrame([{
+            "Hop":              h["hop"],
+            "Distance (km)":   h["dist"],
+            "Delay Prob":      f"{h['prob']:.0%}",
+            "Risk Score":      h["score"],
+            "Risk Level":      h["level"],
+            "Hist. Avg Delay": f"{h['hist']:.1f} hrs",
+        } for h in hop_results])
+
+        def _color_level(col):
+            return [
+                "color:#ef4444;font-weight:700" if v == "High"
+                else "color:#f97316;font-weight:700" if v == "Medium"
+                else "color:#22c55e;font-weight:700"
+                for v in col
+            ]
+        st.dataframe(
+            hop_df.style.apply(_color_level, subset=["Risk Level"]),
+            use_container_width=True, hide_index=True
+        )
+        st.caption(f"Final prediction = average across {alt['hops']} hops  ·  Dijkstra shortest path by risk weight")
     else:
         e = direct.iloc[0]
         edge_mode = int(e.get("transport_mode", 0)) if "transport_mode" in e.index else mode_int

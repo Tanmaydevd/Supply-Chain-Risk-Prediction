@@ -106,5 +106,8 @@ CITY_COORDS: dict[str, tuple[float, float]] = {
 
 # TomTom Traffic Flow API key (free tier)
 # Register at https://developer.tomtom.com/user/register
-# Set via environment variable or paste directly (not committed to git)
 TOMTOM_API_KEY: str = os.environ.get("TOMTOM_API_KEY", "")
+
+# aisstream.io real-time AIS vessel tracking (free)
+# Register at https://aisstream.io — get key from dashboard
+AISSTREAM_API_KEY: str = os.environ.get("AISSTREAM_API_KEY", "")
